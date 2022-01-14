@@ -21,7 +21,7 @@ class targetFinder(object):
         # colors are in the BGR color space
         self.hsvl = blue_low
         self.hsvh = blue_high
-        self.show = True # "show" in sys.argv
+        self.show = "show" in sys.argv
         # self.width = 800
         # self.height = 488
         self.width = 0
