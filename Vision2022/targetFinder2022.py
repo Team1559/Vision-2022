@@ -14,27 +14,34 @@ class targetFinder(object):
         self.cx = -1
         self.cy = -1
         self.err = -1000
-
-        self.hsvl = np.array((70, 50, 60))
-        self.hsvh = np.array((80, 255, 255))
+        green_low = np.array([0, 20, 0])
+        green_high = np.array([100, 255, 100])
+        blue_low = np.array((60, 0, 0))
+        blue_high = np.array((255, 80, 80))
+        # colors are in the BGR color space
+        self.hsvl = blue_low
+        self.hsvh = blue_high
         self.show = True # "show" in sys.argv
         # self.width = 800
         # self.height = 488
+        self.width = 0
+        self.height = 0
 
         self.found = False
 
-        self.minarea = 100
+        self.minarea = 50  # 100
 
     def acquireImage(self):
 
         success, frame = self.camera.read()
         if not success:
             exit(222)
+        self.height, self.width = frame.shape[:2]
         return frame
 
     def preImageProcessing(self, frame):
         # convert to hsv
-        hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+        hsv = frame  # cv2.cvtColor(frame, cv2.COLOR_BGR2BGR)
         # blur me
         hsv = cv2.blur(hsv, (5, 5))
 
@@ -86,10 +93,10 @@ class targetFinder(object):
         for i in range(len(rectangles) - 1):
             angle1 = findAngle(rectangles[i])
             angle2 = findAngle(rectangles[i + 1])
-            # print angle1,angle2
-            if angle1 > 0 and angle2 < 0:
+            # print(angle1,angle2)
+            if True:  # angle1 > 0 and angle2 < 0:
                 targetRectangles = [rectangles[i], rectangles[i + 1]]
-                ex = abs(self.findCentroid(targetRectangles)[0] - self.camera.width / 2)
+                ex = abs(self.findCentroid(targetRectangles)[0] - self.width / 2)
                 candidates.append((ex, targetRectangles))
         # check for candidates then sort by distance from center
         if not candidates:
@@ -123,7 +130,7 @@ class targetFinder(object):
         leftTapePoint = np.max(cv2.boxPoints(rectangles[0]), axis=0)[0]
         rightTapePoint = np.min(cv2.boxPoints(rectangles[1]), axis=0)[0]
         averageTapePoint = (leftTapePoint + rightTapePoint) / 2
-        xError = (self.camera.width / 2) - averageTapePoint
+        xError = (self.width / 2) - averageTapePoint
         angle = -math.atan(xError / 700.0)
 
         # OLD CODE
@@ -152,8 +159,8 @@ class targetFinder(object):
 
         # OLD CODE
         FOV = 60 * math.pi / 180
-        radiansPerPixel = FOV / self.camera.width
-        centerOfImage = self.camera.width / 2
+        radiansPerPixel = FOV / self.width
+        centerOfImage = self.width / 2
         XoffsetAngle = radiansPerPixel * (cx - centerOfImage)
         Xoffset = math.tan(XoffsetAngle) * distance
         return Xoffset
@@ -198,7 +205,7 @@ class targetFinder(object):
         thresh = self.preImageProcessing(frame)
 
         if self.show:
-            cv2.imshow("thresh", thresh)
+            cv2.imshow("Filtered", thresh)
             cv2.waitKey(1)
 
         targets = self.findTargets(thresh)
@@ -210,9 +217,9 @@ class targetFinder(object):
         # found, x, y, angle
         result = (False, 0, 0, 0)
 
-        if (len(rectangles) == 2):
+        if len(rectangles) != 0:
             cx, cy = self.findCentroid(rectangles).astype(np.int32)
-            self.err = cx - (self.camera.width / 2)
+            self.err = cx - (self.width / 2)
             cv2.circle(frame, (cx, cy), 5, 255, -1)
 
             # NEW
@@ -237,6 +244,6 @@ class targetFinder(object):
         else:
             self.err = -1000
         if self.show:
-            cv2.imshow("frame", frame)
+            cv2.imshow("Unfiltered", frame)
             cv2.waitKey(1)
         return result

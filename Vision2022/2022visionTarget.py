@@ -41,6 +41,6 @@ while 1:
     end = datetime.now()
     timeElapsed = end - start
     # print timeElapsed.total_seconds()
-    # print result
-    sendErrorValues(*result)
+    print(result)
+    # sendErrorValues(*result)
 
