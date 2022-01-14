@@ -16,8 +16,8 @@ class targetFinder(object):
         self.err = -1000
         green_low = np.array([0, 20, 0])
         green_high = np.array([100, 255, 100])
-        blue_low = np.array((60, 0, 0))
-        blue_high = np.array((255, 80, 80))
+        blue_low = np.array((20, 0, 0))
+        blue_high = np.array((255, 40, 40))
         # colors are in the BGR color space
         self.hsvl = blue_low
         self.hsvh = blue_high
@@ -249,4 +249,4 @@ class targetFinder(object):
         if self.show:
             cv2.imshow("Unfiltered", frame)
             cv2.waitKey(1)
-        return result
+        return result, frame
