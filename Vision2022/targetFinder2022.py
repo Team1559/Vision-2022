@@ -17,7 +17,7 @@ class targetFinder(object):
 
         self.hsvl = np.array((70, 50, 60))
         self.hsvh = np.array((80, 255, 255))
-        self.show = "show" in sys.argv
+        self.show = True # "show" in sys.argv
         # self.width = 800
         # self.height = 488
 
@@ -26,8 +26,10 @@ class targetFinder(object):
         self.minarea = 100
 
     def acquireImage(self):
-        self.camera.updateFrame()
-        frame = self.camera.frame
+
+        success, frame = self.camera.read()
+        if not success:
+            exit(222)
         return frame
 
     def preImageProcessing(self, frame):
@@ -46,7 +48,7 @@ class targetFinder(object):
     def findTargets(self, thresh):
         # find some contours
         # im2 is useless and used as a filler value
-        im2, contours, hierarchy = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        contours, hierarchy = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
         # grab both min area rectangles
 

@@ -1,7 +1,9 @@
 #!/usr/bin/python
+import cv2
+
 import targetFinder2022
 # import HatchFinder2019
-import usb
+
 from socket import *
 import os
 import subprocess
@@ -14,7 +16,8 @@ address = ("10.15.59.2", 5801)
 
 
 def send(data):
-    s.sendto(data, address)
+    # s.sendto(data, address)
+    print(data)
 
 
 def sendErrorValues(found, x, y, angle):
@@ -24,13 +27,13 @@ def sendErrorValues(found, x, y, angle):
     send(data)
 
 
-subprocess.check_call(["uvcdynctrl", "-s", "White Balance Temperature, Auto", "0"])
-subprocess.check_call(["uvcdynctrl", "-s", "Brightness", "30"])
-subprocess.check_call(["uvcdynctrl", "-s", "Exposure, Auto", "1"])
-subprocess.check_call(["uvcdynctrl", "-s", "Exposure (Absolute)", "5"])
-camera = usb.USBCamera(1, 800, 448)
+# subprocess.check_call(["uvcdynctrl", "-s", "White Balance Temperature, Auto", "0"])
+# subprocess.check_call(["uvcdynctrl", "-s", "Brightness", "30"])
+# subprocess.check_call(["uvcdynctrl", "-s", "Exposure, Auto", "1"])
+# subprocess.check_call(["uvcdynctrl", "-s", "Exposure (Absolute)", "5"])
+camera = cv2.VideoCapture(0)
 
-finder = targetFinder2019.targetFinder(camera)
+finder = targetFinder2022.targetFinder(camera)
 # finder = HatchFinder2019.hatchFinder(camera)
 while 1:
     start = datetime.now()
@@ -40,3 +43,4 @@ while 1:
     # print timeElapsed.total_seconds()
     # print result
     sendErrorValues(*result)
+
