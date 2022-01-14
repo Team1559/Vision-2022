@@ -2,12 +2,12 @@
 sleep 5
 
 # workaround for camera parameters not being set correctly - run the script twice
-python /home/nvidia/Desktop/Vision2019/2019visionTarget.py &
+python /home/nvidia/Desktop/Vision2022/2022visionTarget.py &
 sleep 3
 kill %%
 
 while true; do
 	sleep 1
-	python /home/nvidia/Desktop/Vision2019/2019visionTarget.py
+	python /home/nvidia/Desktop/Vision2022/2022visionTarget.py
 done
 
