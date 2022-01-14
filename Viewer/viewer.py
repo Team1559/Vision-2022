@@ -19,4 +19,5 @@ while True:
 
     except KeyboardInterrupt:
         cv2.destroyAllWindows()
-        break
+        print("exiting")
+        exit(69420)

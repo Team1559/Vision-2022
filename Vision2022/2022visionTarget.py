@@ -20,7 +20,7 @@ if cpuArch != "x86_64" and cpuArch != "AMD64":
 context = zmq.Context()
 footage_socket = context.socket(zmq.PUB)
 if is_jetson:
-    footage_socket.connect('tcp://10.15.59.2:5555')
+    footage_socket.connect('tcp://10.15.59.5:5555')
 else:
     footage_socket.connect('tcp://localhost:5555')
 
@@ -75,4 +75,5 @@ while 1:
     except KeyboardInterrupt:
         camera.release()
         cv2.destroyAllWindows()
-        break
+        print("exiting")
+        exit(42069)
