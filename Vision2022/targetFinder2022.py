@@ -29,7 +29,7 @@ class targetFinder(object):
 
         self.found = False
 
-        self.minarea = 50  # 100
+        self.minarea = 100  # 100
 
     def acquireImage(self):
 
@@ -61,25 +61,30 @@ class targetFinder(object):
 
         contours = sorted(contours, key=cv2.contourArea, reverse=True)[:4]
         rectangles = []
+        areas = [cv2.contourArea(c) for c in contours]
+        if len(areas) > 0:
+            max_index = np.argmax(areas)
+            cnt = contours[max_index]
 
-        for cnt in contours:
-            # check for min area
-            if cv2.contourArea(cnt) < self.minarea:
-                break
+        # check for min area
+            if cv2.contourArea(cnt) >= self.minarea:
+                rect = cv2.minAreaRect(cnt)
+                rectangles.append(rect)
+                rectangles.append(rect)
             # check for quadrilateral
-            perimeter = cv2.arcLength(cnt, True)
-            polygon = cv2.approxPolyDP(cnt, 0.04 * perimeter, True)
-            # check for num of contours did not work
-            # if len(polygon)!=4:
-            #    continue
+                perimeter = cv2.arcLength(cnt, True)
+                polygon = cv2.approxPolyDP(cnt, 0.04 * perimeter, True)
+        # check for num of contours did not work
+        # if len(polygon)!=4:
+        #    continue
 
-            rect = cv2.minAreaRect(cnt)
-            rectangles.append(rect)
+
 
         def xpos(r):
             return r[0][0]
 
         return tuple(sorted(rectangles, key=xpos))
+        # return rectangles.sort()
 
     def targetRectangles(self, rectangles):
         def findAngle(r):
@@ -90,15 +95,14 @@ class targetFinder(object):
             return angle
 
         candidates = []
-        for i in range(len(rectangles) - 1):
-            angle1 = findAngle(rectangles[i])
-            angle2 = findAngle(rectangles[i + 1])
+        for i in range(len(rectangles)):
+            # angle1 = findAngle(rectangles[i])
+            # angle2 = findAngle(rectangles[i + 1])
             # print(angle1,angle2)
-            if True:  # angle1 > 0 and angle2 < 0:
-                targetRectangles = [rectangles[i], rectangles[i + 1]]
-                ex = abs(self.findCentroid(targetRectangles)[0] - self.width / 2)
-                candidates.append((ex, targetRectangles))
-        # check for candidates then sort by distance from center
+            targetRectangles = [rectangles[i]]
+            ex = abs(self.findCentroid(targetRectangles)[0] )
+            candidates.append((ex, targetRectangles))
+    # check for candidates then sort by distance from center
         if not candidates:
             return []
         else:
@@ -106,7 +110,6 @@ class targetFinder(object):
             return candidates[0][1]
 
     def findCentroid(self, rectangles):
-
         centers = np.array([r[0] for r in rectangles])
         centroid = np.mean(centers, axis=0)
         return centroid
@@ -128,7 +131,7 @@ class targetFinder(object):
 
     def calculateAngle(self, distance, distances, rectangles):
         leftTapePoint = np.max(cv2.boxPoints(rectangles[0]), axis=0)[0]
-        rightTapePoint = np.min(cv2.boxPoints(rectangles[1]), axis=0)[0]
+        rightTapePoint = np.min(cv2.boxPoints(rectangles[0]), axis=0)[0]
         averageTapePoint = (leftTapePoint + rightTapePoint) / 2
         xError = (self.width / 2) - averageTapePoint
         angle = -math.atan(xError / 700.0)
@@ -140,13 +143,13 @@ class targetFinder(object):
             viewAngle = 0
         else:
             viewAngle = math.acos(widthBetweenTapes / expectedWidth)
-        if distances[0] < distances[1]:
-            viewAngle = -viewAngle
+        # if distances[0] < distances[1]:
+        #     viewAngle = -viewAngle
         return angle, viewAngle
 
     def XOffset(self, distance, rectangles):
         a = rectangles[0][1][0] * rectangles[0][1][1]
-        b = rectangles[1][1][0] * rectangles[1][1][1]
+        b = rectangles[0][1][0] * rectangles[0][1][1]
 
         if a > b:
             ratio = -math.sqrt(a / b - 1)
@@ -217,10 +220,10 @@ class targetFinder(object):
         # found, x, y, angle
         result = (False, 0, 0, 0)
 
-        if len(rectangles) != 0:
+        if len(rectangles) > 0:
             cx, cy = self.findCentroid(rectangles).astype(np.int32)
             self.err = cx - (self.width / 2)
-            cv2.circle(frame, (cx, cy), 5, 255, -1)
+            cv2.circle(frame, (cx, cy), 50, (0, 0, 255), -1)
 
             # NEW
             distance, distances = self.calculateDistance(rectangles)
