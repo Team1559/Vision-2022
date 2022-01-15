@@ -14,16 +14,16 @@ class targetFinder(object):
         self.cx = -1
         self.cy = -1
         self.err = -1000
-        self.hsvl = np.array((70, 50, 60))
-        self.hsvh = np.array((80, 255, 255))
-        green_low = np.array([0, 20, 0])
-        green_high = np.array([100, 255, 100])
+        # self.hsvl = np.array((70, 50, 60))
+        # self.hsvh = np.array((80, 255, 255))
+        green_low = np.array([40, 20, 40])
+        green_high = np.array([105, 255, 105])
         blue_low = np.array((20, 0, 0))
         blue_high = np.array((255, 40, 40))
         # colors are in the BGR color space
-        self.hsvl = blue_low
-        self.hsvh = blue_high
-        self.show = "show" in sys.argv
+        self.hsvl = green_low
+        self.hsvh = green_high
+        self.show = True  # "show" in sys.argv
         # self.width = 800
         # self.height = 488
         self.width = 0
@@ -43,7 +43,8 @@ class targetFinder(object):
 
     def preImageProcessing(self, frame):
         # convert to hsv
-        hsv = frame  # cv2.cvtColor(frame, cv2.COLOR_BGR2BGR)
+        # hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+        hsv = frame
         # blur me
         hsv = cv2.blur(hsv, (5, 5))
 
