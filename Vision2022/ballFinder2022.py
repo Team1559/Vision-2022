@@ -14,8 +14,6 @@ class targetFinder(object):
         self.cx = -1
         self.cy = -1
         self.err = -1000
-        self.hsvl = np.array((70, 50, 60))
-        self.hsvh = np.array((80, 255, 255))
         green_low = np.array([0, 20, 0])
         green_high = np.array([100, 255, 100])
         blue_low = np.array((20, 0, 0))
@@ -124,11 +122,6 @@ class targetFinder(object):
         distances = 3009.30724995 * np.power(tapeHeights, -0.94923256)
         distance = np.mean(distances)
         # print distance
-
-        # OLD
-        # actualTapeDistance = tapeXDistance / math.cos(angle)
-        # distance = 6846.93489125*math.pow(actualTapeDistance,-1.03994056)
-        # print distance, angle * 180/math.pi
         return distance, distances
 
     def calculateAngle(self, distance, distances, rectangles):
