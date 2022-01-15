@@ -226,7 +226,7 @@ class targetFinder(object):
         if len(rectangles) > 0:
             cx, cy = self.findCentroid(rectangles).astype(np.int32)
             self.err = cx - (self.width / 2)
-            cv2.circle(frame, (cx, cy), 50, (0, 0, 255), -1)
+            cv2.circle(frame, (cx, cy), 10, (0, 0, 255), -1)
 
             # NEW
             distance, distances = self.calculateDistance(rectangles)
