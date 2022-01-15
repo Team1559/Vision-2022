@@ -31,7 +31,7 @@ class targetFinder(object):
 
         self.found = False
 
-        self.minarea = 100  # 100
+        self.minarea = 10  # 100
 
     def acquireImage(self):
 
