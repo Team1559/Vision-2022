@@ -2,7 +2,7 @@
 import cv2
 import platform
 import targetFinder2022
-# import HatchFinder2019
+import ballFinder2022
 
 from socket import *
 import os
@@ -39,13 +39,13 @@ def send(data):
         s.sendto(bytes(data, 'utf-8'), address)
     else:
         s.sendto(bytes(data, 'utf-8'), localhost)
-    print(data)
+    # print(data)
 
 
 def send_data(found, x, y, angle):
     status = 1 if found else 0
     data = '%3.1f %3.1f %3.1f %d \n' % (x, y, angle, status)
-    print(data)
+    # print(data)
     send(data)
 
 
@@ -54,26 +54,28 @@ def send_data(found, x, y, angle):
 # subprocess.check_call(["uvcdynctrl", "-s", "Exposure, Auto", "1"])
 # subprocess.check_call(["uvcdynctrl", "-s", "Exposure (Absolute)", "5"])
 camera = cv2.VideoCapture(0)
-
-finder = targetFinder2022.targetFinder(camera)
+finder = ballFinder2022.targetFinder(camera)
 # finder = HatchFinder2019.hatchFinder(camera)
 print(camera.set(cv2.CAP_PROP_XI_MANUAL_WB, 1))
 while 1:
+    # try:
+    start = datetime.now()
+    result, frame = finder.find()
+    end = datetime.now()
+    timeElapsed = end - start
+    # print timeElapsed.total_seconds()
+    # print(result)
+    send_data(*result)
 
-    try:
-        start = datetime.now()
-        result, frame = finder.find()
-        end = datetime.now()
-        timeElapsed = end - start
-        # print timeElapsed.total_seconds()
-        # print(result)
-        send_data(*result)
-
-        encoded, buffer = cv2.imencode('.jpg', frame)
-        footage_socket.send(buffer)
-
-    except KeyboardInterrupt:
-        camera.release()
-        cv2.destroyAllWindows()
-        print("exiting")
-        exit(42069)
+    encoded, buffer = cv2.imencode('.jpg', frame)
+    footage_socket.send(buffer)
+    # except KeyboardInterrupt:
+    #     camera.release()
+    #     cv2.destroyAllWindows()
+    #     print("exiting")
+    #     exit(42069)
+    # # except Exception as e:
+    # #     print(e)
+    # except BaseException as e:
+    #     print(e)
+    #     break
