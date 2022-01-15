@@ -16,8 +16,8 @@ class targetFinder(object):
         self.err = -1000
         # self.hsvl = np.array((70, 50, 60))
         # self.hsvh = np.array((80, 255, 255))
-        green_low = np.array([40, 20, 40])
-        green_high = np.array([105, 255, 105])
+        green_low = np.array([0, 100, 0])
+        green_high = np.array([10, 255, 10])
         blue_low = np.array((20, 0, 0))
         blue_high = np.array((255, 40, 40))
         # colors are in the BGR color space
