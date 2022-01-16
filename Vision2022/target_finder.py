@@ -1,14 +1,12 @@
 import math
-import sys
-
 import cv2
 import numpy as np
 
 
-class targetFinder(object):
+class target_finder(object):
 
     def __init__(self, Camera):
-        '''Initialize camera'''
+        """Initialize camera"""
         self.camera = Camera
         # BRIGHTNESS AT 30 for perfect, 85 for driver station
         self.cx = -1
@@ -69,19 +67,18 @@ class targetFinder(object):
             max_index = np.argmax(areas)
             cnt = contours[max_index]
 
-        # check for min area
+            # check for min area
             if cv2.contourArea(cnt) >= self.minarea:
                 rect = cv2.minAreaRect(cnt)
                 rectangles.append(rect)
                 rectangles.append(rect)
-            # check for quadrilateral
+                # check for quadrilateral
                 perimeter = cv2.arcLength(cnt, True)
                 polygon = cv2.approxPolyDP(cnt, 0.04 * perimeter, True)
+
         # check for num of contours did not work
         # if len(polygon)!=4:
         #    continue
-
-
 
         def xpos(r):
             return r[0][0]
@@ -103,9 +100,9 @@ class targetFinder(object):
             # angle2 = findAngle(rectangles[i + 1])
             # print(angle1,angle2)
             targetRectangles = [rectangles[i]]
-            ex = abs(self.findCentroid(targetRectangles)[0] )
+            ex = abs(self.findCentroid(targetRectangles)[0])
             candidates.append((ex, targetRectangles))
-    # check for candidates then sort by distance from center
+        # check for candidates then sort by distance from center
         if not candidates:
             return []
         else:
@@ -253,3 +250,8 @@ class targetFinder(object):
             cv2.imshow("Unfiltered", frame)
             cv2.waitKey(1)
         return result, frame
+
+
+if __name__ == "__main__":
+    print("This file is a library please run the correct file to get the output")
+    exit(42069)

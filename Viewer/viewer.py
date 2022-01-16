@@ -1,6 +1,5 @@
 import cv2
 import zmq
-import base64
 import numpy as np
 
 context = zmq.Context()
@@ -12,7 +11,7 @@ while True:
     try:
         frame = footage_socket.recv()
         npimg = np.frombuffer(frame, dtype=np.uint8)
-        #npimg = npimg.reshape(480,640,3)
+        # npimg = npimg.reshape(480,640,3)
         source = cv2.imdecode(npimg, 1)
         cv2.imshow("Stream", source)
         cv2.waitKey(1)

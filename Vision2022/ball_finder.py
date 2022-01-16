@@ -1,14 +1,11 @@
-import math
-import sys
-
 import cv2
 import numpy as np
 
 
-class targetFinder(object):
+class ball_finder(object):
 
     def __init__(self, Camera):
-        '''Initialize camera'''
+        """Initialize camera"""
         self.camera = Camera
         # BRIGHTNESS AT 30 for perfect, 85 for driver station
         self.cx = -1
@@ -56,7 +53,8 @@ class targetFinder(object):
         cv2.imshow("Color filtered", filtered)
         cv2.waitKey(1)
 
-        circles = cv2.HoughCircles(cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY), cv2.HOUGH_GRADIENT,1,75, param1=90, param2=20, minRadius=1, maxRadius=100)
+        circles = cv2.HoughCircles(cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY), cv2.HOUGH_GRADIENT, 1, 75, param1=90,
+                                   param2=20, minRadius=1, maxRadius=100)
         output = frame.copy()
         # ensure at least some circles were found
         if circles is not None:
@@ -69,13 +67,13 @@ class targetFinder(object):
                 try:
                     if filtered[y][x][2] > 0:
                         if r > maxRadius:
-                            ball = (x,y,r)
+                            ball = (x, y, r)
                             maxRadius = r
                 except IndexError:
                     pass
             if ball is not None:
-                cv2.circle(output, (ball[0],ball[1]), ball[2], (0, 255, 0), 4)
-        
+                cv2.circle(output, (ball[0], ball[1]), ball[2], (0, 255, 0), 4)
+
         cv2.imshow("Circles", output)
         cv2.waitKey(1)
         return circles
@@ -98,4 +96,9 @@ class targetFinder(object):
         if self.show:
             cv2.imshow("Unfiltered", frame)
             cv2.waitKey(1)
-        return (10,10,10,0), frame
+        return (10, 10, 10, 0), frame
+
+
+if __name__ == "__main__":
+    print("This file is a library please run the correct file to get the output")
+    exit(42069)
