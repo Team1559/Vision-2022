@@ -6,7 +6,7 @@ import sys
 
 class target_finder(object):
 
-    def __init__(self, Camera):
+    def __init__(self, Camera: cv2.VideoCapture):
         """Initialize camera"""
         self.camera = Camera
         # BRIGHTNESS AT 30 for perfect, 85 for driver station
