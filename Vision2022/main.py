@@ -1,7 +1,6 @@
 #!/usr/bin/python
 import subprocess
 from typing import *
-
 import cv2
 import platform
 from socket import *
