@@ -26,13 +26,9 @@ def main():
     # address = ("169.254.210.151", 5801)
     # address = ("roborio-1559-frc.local", 5801)
     address = ("10.15.59.2", 5801)
-    localhost = ("localhost", 5801)
 
     def send(data):
-        if is_jetson:
-            s.sendto(bytes(data, 'utf-8'), address)
-        else:
-            s.sendto(bytes(data, 'utf-8'), localhost)
+        s.sendto(bytes(data, 'utf-8'), address)
         print(data)
 
     def send_data(found, x, y, angle):

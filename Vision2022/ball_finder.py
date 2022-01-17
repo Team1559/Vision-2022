@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+import sys
 
 
 class ball_finder(object):
@@ -16,8 +17,7 @@ class ball_finder(object):
         blue_high = np.array((115, 250, 255))
         self.hsvl = blue_low
         self.hsvh = blue_high
-        # self.show = "show" in sys.argv
-        self.show = True
+        self.show = "show" in sys.argv
         # self.width = 800
         # self.height = 488
         self.width = 0
