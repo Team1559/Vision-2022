@@ -1,5 +1,7 @@
 #!/usr/bin/python
 import subprocess
+from typing import *
+
 import cv2
 import platform
 from socket import *
@@ -10,7 +12,7 @@ from Vision2022 import ball_finder
 from Vision2022 import target_finder
 
 
-def main(do_hoop_finder=True, do_ball_finder=True):
+def main(do_hoop_finder=True, do_ball_finder=True) -> NoReturn:
     is_jetson = False
     cpuArch = platform.uname()[4]
     if cpuArch != "x86_64" and cpuArch != "AMD64":
@@ -31,12 +33,12 @@ def main(do_hoop_finder=True, do_ball_finder=True):
     # ip based address ↓↓↓↓↓
     address = ("10.15.59.2", 5801)
 
-    def send(data: str):
+    def send(data: str) -> NoReturn:
         s.sendto(bytes(data, 'utf-8'), address)
         print(data)
 
     def send_data(hoop_found: bool, hoop_x: float, hoop_y: float, hoop_angle: float, ball_found: bool, ball_x: float,
-                  ball_y: float, ball_angle: float):
+                  ball_y: float, ball_angle: float) -> NoReturn:
         ball_status = 1 if ball_found else 0
         hoop_status = 1 if hoop_found else 0
 
@@ -117,4 +119,4 @@ def main(do_hoop_finder=True, do_ball_finder=True):
 
 
 if __name__ == "__main__":
-    main(do_hoop_finder=True, do_ball_finder=False)
+    main(do_hoop_finder=True, do_ball_finder=True)

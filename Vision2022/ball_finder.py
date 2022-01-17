@@ -1,3 +1,4 @@
+from typing import *
 import cv2
 import numpy as np
 import sys
@@ -5,7 +6,7 @@ import sys
 
 class ball_finder(object):
 
-    def __init__(self, Camera: cv2.VideoCapture):
+    def __init__(self, Camera: cv2.VideoCapture) -> NoReturn:
         """Initialize camera"""
         self.camera = Camera
         # BRIGHTNESS AT 30 for perfect, 85 for driver station
@@ -27,7 +28,7 @@ class ball_finder(object):
 
         self.minarea = 10  # 100
 
-    def acquireImage(self):
+    def acquireImage(self) -> np.ndarray:
 
         success, frame = self.camera.read()
         if not success:
@@ -35,7 +36,7 @@ class ball_finder(object):
         self.height, self.width = frame.shape[:2]
         return frame
 
-    def preImageProcessing(self, frame):
+    def preImageProcessing(self, frame) -> np.ndarray:
         # convert to hsv
         hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
         # blur me
@@ -48,9 +49,10 @@ class ball_finder(object):
 
         return thresh
 
-    def findTargets(self, frame, thresh):
+    def findTargets(self, frame, thresh) -> np.ndarray:
         filtered = cv2.bitwise_and(frame, frame, mask=thresh)
-        cv2.imshow("Color filtered", filtered)
+        if self.show:
+            cv2.imshow("Color filtered", filtered)
         cv2.waitKey(1)
 
         circles = cv2.HoughCircles(cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY), cv2.HOUGH_GRADIENT, 1, 75, param1=90,
@@ -74,17 +76,18 @@ class ball_finder(object):
             if ball is not None:
                 cv2.circle(output, (ball[0], ball[1]), ball[2], (0, 255, 0), 4)
 
-        cv2.imshow("Circles", output)
-        cv2.waitKey(1)
+        if self.show:
+            cv2.imshow("Circles", output)
+            cv2.waitKey(1)
         return circles
         # return rectangles.sort()
 
-    def findCentroid(self, rectangles):
+    def findCentroid(self, rectangles) -> np.ndarray:
         centers = np.array([r[0] for r in rectangles])
         centroid = np.mean(centers, axis=0)
         return centroid
 
-    def find(self):
+    def find(self) -> tuple:
         frame = self.acquireImage()
         thresh = self.preImageProcessing(frame)
 

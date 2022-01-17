@@ -1,4 +1,5 @@
 import math
+from typing import *
 import cv2
 import numpy as np
 import sys
@@ -6,7 +7,7 @@ import sys
 
 class target_finder(object):
 
-    def __init__(self, Camera: cv2.VideoCapture):
+    def __init__(self, Camera: cv2.VideoCapture) -> NoReturn:
         """Initialize camera"""
         self.camera = Camera
         # BRIGHTNESS AT 30 for perfect, 85 for driver station
@@ -32,7 +33,7 @@ class target_finder(object):
 
         self.minarea = 10  # 100
 
-    def acquireImage(self):
+    def acquireImage(self) -> np.ndarray:
 
         success, frame = self.camera.read()
         if not success:
@@ -40,7 +41,7 @@ class target_finder(object):
         self.height, self.width = frame.shape[:2]
         return frame
 
-    def preImageProcessing(self, frame):
+    def preImageProcessing(self, frame) -> np.ndarray:
         # convert to hsv
         # hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
         hsv = frame
@@ -54,7 +55,7 @@ class target_finder(object):
         thresh = cv2.dilate(thresh, (14, 14))
         return thresh
 
-    def findTargets(self, thresh):
+    def findTargets(self, thresh) -> tuple:
         # find some contours
         # im2 is useless and used as a filler value
         contours, hierarchy = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
@@ -87,7 +88,7 @@ class target_finder(object):
         return tuple(sorted(rectangles, key=xpos))
         # return rectangles.sort()
 
-    def targetRectangles(self, rectangles):
+    def targetRectangles(self, rectangles) -> list:
         def findAngle(r):
             if r[1][1] > r[1][0]:
                 angle = r[2]
@@ -110,12 +111,12 @@ class target_finder(object):
             candidates.sort()
             return candidates[0][1]
 
-    def findCentroid(self, rectangles):
+    def findCentroid(self, rectangles) -> np.ndarray:
         centers = np.array([r[0] for r in rectangles])
         centroid = np.mean(centers, axis=0)
         return centroid
 
-    def calculateDistance(self, rectangles):
+    def calculateDistance(self, rectangles) -> tuple:
         # NEW
         dims = np.array([r[1] for r in rectangles])
         tapeHeights = np.max(dims, axis=1)
@@ -130,7 +131,7 @@ class target_finder(object):
         # print distance, angle * 180/math.pi
         return distance, distances
 
-    def calculateAngle(self, distance, distances, rectangles):
+    def calculateAngle(self, distance, distances, rectangles) -> tuple:
         leftTapePoint = np.max(cv2.boxPoints(rectangles[0]), axis=0)[0]
         rightTapePoint = np.min(cv2.boxPoints(rectangles[0]), axis=0)[0]
         averageTapePoint = (leftTapePoint + rightTapePoint) / 2
@@ -148,7 +149,7 @@ class target_finder(object):
         #     viewAngle = -viewAngle
         return angle, viewAngle
 
-    def XOffset(self, distance, rectangles):
+    def XOffset(self, distance, rectangles) -> float:
         a = rectangles[0][1][0] * rectangles[0][1][1]
         b = rectangles[0][1][0] * rectangles[0][1][1]
 
@@ -169,7 +170,7 @@ class target_finder(object):
         Xoffset = math.tan(XoffsetAngle) * distance
         return Xoffset
 
-    def aspectRatioUNUSED(self, rectangles):
+    def aspectRatioUNUSED(self, rectangles) -> tuple:
 
         # new code
         dims = np.array([r[1] for r in rectangles])
@@ -187,7 +188,7 @@ class target_finder(object):
         # aspectRatio = np.mean(aspectRatios)
         return aspectRatio, tapeDistance,
 
-    def angleOLD(self, rectangles, aspectRatio):
+    def angleOLD(self, rectangles, aspectRatio) -> float:
         # aspect ratio depends on the height of the target relative to the camera frame
         base_ratio = 1.44
         # base_ratio = 3.17
@@ -204,7 +205,7 @@ class target_finder(object):
         # print aspectRatio, angle*(180/math.pi)
         return angle
 
-    def find(self):
+    def find(self) -> tuple:
         frame = self.acquireImage()
         thresh = self.preImageProcessing(frame)
 
