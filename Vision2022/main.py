@@ -37,12 +37,13 @@ def main(do_hoop_finder=True, do_ball_finder=True) -> NoReturn:
         print(data)
 
     def send_data(hoop_found: bool, hoop_x: float, hoop_y: float, hoop_angle: float, ball_found: bool, ball_x: float,
-                  ball_y: float, ball_angle: float) -> NoReturn:
+                  ball_y: float, ball_angle: float, wait_for_other_robot: int) -> NoReturn:
         ball_status = 1 if ball_found else 0
         hoop_status = 1 if hoop_found else 0
 
-        data = '%3.1f %3.1f %3.1f %3.1f %3.1f %3.1f %d %d \n' % (hoop_x, hoop_y, hoop_angle, ball_x, ball_y, ball_angle,
-                                                                 ball_status, hoop_status)
+        data = '%3.1f %3.1f %3.1f %3.1f %3.1f %3.1f %d %d %d \n' % (hoop_x, hoop_y, hoop_angle, ball_x, ball_y,
+                                                                    ball_angle, ball_status, hoop_status,
+                                                                    wait_for_other_robot)
         if not is_jetson:
             print(data)
         send(data)
@@ -79,13 +80,13 @@ def main(do_hoop_finder=True, do_ball_finder=True) -> NoReturn:
             timeElapsed = end - start
 
             if do_ball_finder and do_hoop_finder:
-                send_data(*hoop_result, *ball_result)
+                send_data(*hoop_result, *ball_result, 0)
 
             elif do_ball_finder and not do_hoop_finder:
-                send_data(*(False, 0, 0, 0), *ball_result)
+                send_data(*(False, 0, 0, 0), *ball_result, 0)
 
             elif not do_ball_finder and do_hoop_finder:
-                send_data(*hoop_result, *(False, 0, 0, 0))
+                send_data(*hoop_result, *(False, 0, 0, 0), 0)
 
             if do_hoop_finder and do_ball_finder:
                 # put both frames side by side
