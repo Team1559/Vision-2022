@@ -35,6 +35,7 @@ class ball_finder(object):
             pass
             # exit(222)
         self.height, self.width = frame.shape[:2]
+        self.out = frame
         return frame
 
     def preImageProcessing(self, frame) -> np.ndarray:
@@ -79,8 +80,8 @@ class ball_finder(object):
 
         if self.show:
             cv2.imshow("Circles", output)
-            self.out = output
             cv2.waitKey(1)
+        self.out = output
         return circles
         # return rectangles.sort()
 
@@ -101,7 +102,7 @@ class ball_finder(object):
         if self.show:
             cv2.imshow("Unfiltered", frame)
             cv2.waitKey(1)
-        return (10, 10, 10, 0), self.output
+        return (10, 10, 10, 0), self.out
 
 
 if __name__ == "__main__":

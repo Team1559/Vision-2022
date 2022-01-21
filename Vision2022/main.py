@@ -34,7 +34,6 @@ def main(do_hoop_finder=True, do_ball_finder=True) -> NoReturn:
 
     def send(data: str) -> NoReturn:
         s.sendto(bytes(data, 'utf-8'), address)
-        print(data)
 
     def send_data(hoop_found: bool, hoop_x: float, hoop_y: float, hoop_angle: float, ball_found: bool, ball_x: float,
                   ball_y: float, ball_angle: float, wait_for_other_robot: int) -> NoReturn:
@@ -77,6 +76,8 @@ def main(do_hoop_finder=True, do_ball_finder=True) -> NoReturn:
             if do_ball_finder:
                 ball_result, ball_frame = ball.find()
 
+            if not is_jetson:
+                print(str(hoop_result) + " <-- Hoop, Ball--> " + str (ball_result))
             end = datetime.now()
             timeElapsed = end - start
 
@@ -116,7 +117,7 @@ def main(do_hoop_finder=True, do_ball_finder=True) -> NoReturn:
                 hoop_camera.release()
             cv2.destroyAllWindows()
             print("exiting")
-            exit(42069)
+            exit(69420)
 
 
 if __name__ == "__main__":
