@@ -58,7 +58,7 @@ class ball_finder(object):
         cv2.waitKey(1)
 
         circles = cv2.HoughCircles(cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY), cv2.HOUGH_GRADIENT, 1, 75, param1=90,
-                                   param2=20, minRadius=30, maxRadius=200)
+                                   param2=20, minRadius=10, maxRadius=200)
         output = frame.copy()
         # ensure at least some circles were found
         if circles is not None:
@@ -72,9 +72,10 @@ class ball_finder(object):
                     if filtered[y][x][2] > 0:
                         if r > maxRadius:
                             ball = (x, y, r)
-                            maxRadius = r
+                            maxRadius = r   
                 except IndexError:
                     pass
+                print(np.mean(thresh[max(x-r,0):min(x+r,self.width), max(y-r,0):min(y+r,self.height)]) ) #> 1*3.141519265357962/4
             if ball is not None:
                 cv2.circle(output, (ball[0], ball[1]), ball[2], (0, 255, 0), 4)
 
