@@ -25,7 +25,7 @@ class ball_finder(object):
         self.height = 0
 
         self.found = False
-
+        self.out = None
         self.minarea = 10  # 100
 
     def acquireImage(self) -> np.ndarray:
@@ -79,6 +79,7 @@ class ball_finder(object):
 
         if self.show:
             cv2.imshow("Circles", output)
+            self.out = output
             cv2.waitKey(1)
         return circles
         # return rectangles.sort()
@@ -100,7 +101,7 @@ class ball_finder(object):
         if self.show:
             cv2.imshow("Unfiltered", frame)
             cv2.waitKey(1)
-        return (10, 10, 10, 0), frame
+        return (10, 10, 10, 0), self.output
 
 
 if __name__ == "__main__":
