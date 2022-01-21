@@ -32,7 +32,8 @@ class ball_finder(object):
 
         success, frame = self.camera.read()
         if not success:
-            exit(222)
+            pass
+            # exit(222)
         self.height, self.width = frame.shape[:2]
         return frame
 

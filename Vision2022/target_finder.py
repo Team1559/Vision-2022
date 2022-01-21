@@ -37,7 +37,8 @@ class target_finder(object):
 
         success, frame = self.camera.read()
         if not success:
-            exit(222)
+            pass
+            # exit(222)
         self.height, self.width = frame.shape[:2]
         return frame
 
@@ -51,8 +52,8 @@ class target_finder(object):
         thresh = cv2.inRange(hsv, self.hsvl, self.hsvh)
 
         # erode and dilate
-        thresh = cv2.erode(thresh, (14, 14))
-        thresh = cv2.dilate(thresh, (14, 14))
+        thresh = cv2.erode(thresh, (7, 7))
+        thresh = cv2.dilate(thresh, (7, 7))
         return thresh
 
     def findTargets(self, thresh) -> tuple:
@@ -225,7 +226,7 @@ class target_finder(object):
         if len(rectangles) > 0:
             cx, cy = self.findCentroid(rectangles).astype(np.int32)
             self.err = cx - (self.width / 2)
-            cv2.circle(frame, (cx, cy), 10, (0, 0, 255), -1)
+            cv2.circle(frame, (cx, cy), 10, (255, 0, 0), 5)
 
             # NEW
             distance, distances = self.calculateDistance(rectangles)

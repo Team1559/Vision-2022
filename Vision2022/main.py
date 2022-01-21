@@ -59,23 +59,24 @@ def main(do_hoop_finder=True, do_ball_finder=True) -> NoReturn:
         if do_hoop_finder:
             hoop_camera = cv2.VideoCapture(2)
     else:
-        if do_ball_finder:
-            ball_camera = cv2.VideoCapture(1)
         if do_hoop_finder:
-            hoop_camera = cv2.VideoCapture(0)
-    if do_ball_finder:
-        ball = ball_finder.ball_finder(ball_camera)
+            hoop_camera = cv2.VideoCapture(1)
+        if do_ball_finder:
+            ball_camera = cv2.VideoCapture(0)
     if do_hoop_finder:
         hoop = target_finder.target_finder(hoop_camera)
+    if do_ball_finder:
+        ball = ball_finder.ball_finder(ball_camera)
 
     while 1:
 
         try:
             start = datetime.now()
-            if do_ball_finder:
-                ball_result, ball_frame = ball.find()
             if do_hoop_finder:
                 hoop_result, hoop_frame = hoop.find()
+            if do_ball_finder:
+                ball_result, ball_frame = ball.find()
+
             end = datetime.now()
             timeElapsed = end - start
 
