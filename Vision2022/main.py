@@ -7,8 +7,8 @@ from socket import *
 from datetime import datetime
 import zmq
 import numpy as np
-from Vision2022 import ball_finder
-from Vision2022 import target_finder
+import ball_finder
+import target_finder
 
 
 def main(do_hoop_finder=True, do_ball_finder=True) -> NoReturn:
@@ -121,4 +121,4 @@ def main(do_hoop_finder=True, do_ball_finder=True) -> NoReturn:
 
 
 if __name__ == "__main__":
-    main(do_hoop_finder=True, do_ball_finder=True)
+    main(do_hoop_finder=False, do_ball_finder=True)

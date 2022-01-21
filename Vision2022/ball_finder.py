@@ -58,7 +58,7 @@ class ball_finder(object):
         cv2.waitKey(1)
 
         circles = cv2.HoughCircles(cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY), cv2.HOUGH_GRADIENT, 1, 75, param1=90,
-                                   param2=20, minRadius=1, maxRadius=100)
+                                   param2=20, minRadius=30, maxRadius=200)
         output = frame.copy()
         # ensure at least some circles were found
         if circles is not None:
