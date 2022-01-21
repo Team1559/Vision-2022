@@ -76,8 +76,13 @@ def main(do_hoop_finder=True, do_ball_finder=True) -> NoReturn:
             if do_ball_finder:
                 ball_result, ball_frame = ball.find()
 
-            if not is_jetson:
+            if not is_jetson and do_hoop_finder and do_ball_finder:
                 print(str(hoop_result) + " <-- Hoop, Ball--> " + str (ball_result))
+            elif not is_jetson and do_hoop_finder:
+                print(str(hoop_result) + " <-- Hoop")
+            if not is_jetson and do_ball_finder:
+                print("Ball--> " + str(ball_result))
+
             end = datetime.now()
             timeElapsed = end - start
 
