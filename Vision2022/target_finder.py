@@ -28,7 +28,6 @@ class target_finder(object):
         # self.height = 488
         self.width = 0
         self.height = 0
-
         self.found = False
 
         self.minarea = 10  # 100
@@ -65,23 +64,24 @@ class target_finder(object):
 
         contours = sorted(contours, key=cv2.contourArea, reverse=True)[:4]
         rectangles = []
-        areas = [cv2.contourArea(c) for c in contours]
-        if len(areas) > 0:
-            max_index = np.argmax(areas)
-            cnt = contours[max_index]
+        #areas = [cv2.contourArea(c) for c in contours]
+        if len(contours) > 0:
+            for cnt in contours:
+                #max_index = np.argmax(areas)
+                #cnt = contours[max_index]
 
-            # check for min area
-            if cv2.contourArea(cnt) >= self.minarea:
-                rect = cv2.minAreaRect(cnt)
-                rectangles.append(rect)
-                #rectangles.append(rect)
-                # check for quadrilateral
-                perimeter = cv2.arcLength(cnt, True)
-                polygon = cv2.approxPolyDP(cnt, 0.04 * perimeter, True)
+                # check for min area
+                if cv2.contourArea(cnt) >= self.minarea:
+                    rect = cv2.minAreaRect(cnt)
+                    rectangles.append(rect)
+                    #rectangles.append(rect)
+                    # check for quadrilateral
+                    perimeter = cv2.arcLength(cnt, True)
+                    polygon = cv2.approxPolyDP(cnt, 0.04 * perimeter, True)
 
-        # check for num of contours did not work
-        # if len(polygon)!=4:
-        #    continue
+            # check for num of contours did not work
+            # if len(polygon)!=4:
+            #    continue
 
         def xpos(r):
             return r[0][0]
@@ -118,98 +118,24 @@ class target_finder(object):
 
     def findCentroid(self, rectangles) -> np.ndarray:
         centers = np.array([r[0] for r in rectangles])
-        centroid = np.mean(centers, axis=0)
-        print("centroid : " , centroid)
+        centroid = np.median(centers, axis=0)
+        #print("centroid : " , centroid)
         return centroid
 
-    def calculateDistance(self, rectangles) -> tuple:
-        # NEW
-        dims = np.array([r[1] for r in rectangles])
-        tapeHeights = np.max(dims, axis=1)
-        # tapeHeight = np.mean(tapeHeights)
-        distances = 3009.30724995 * np.power(tapeHeights, -0.94923256)
-        distance = np.mean(distances)
-        # print distance
+    def calculateDistance(self, centroidy) -> tuple:
+        fov = 45 #degrees
+        imageHeight = 480 #pixels
+        targetPixelY = centroidy #pixels
+        cameraHeight = 3 #feet
+        targetHeight = 8.67 #feet
+        angularOffset = 25 #degrees
+        heightDifference = targetHeight-cameraHeight #feet
 
-        # OLD
-        # actualTapeDistance = tapeXDistance / math.cos(angle)
-        # distance = 6846.93489125*math.pow(actualTapeDistance,-1.03994056)
-        # print distance, angle * 180/math.pi
-        return distance, distances
+        theta = fov/imageHeight*targetPixelY + angularOffset
+        d = heightDifference/np.tan(theta)
 
-    def calculateAngle(self, distance, distances, rectangles) -> tuple:
-        leftTapePoint = np.max(cv2.boxPoints(rectangles[0]), axis=0)[0]
-        rightTapePoint = np.min(cv2.boxPoints(rectangles[0]), axis=0)[0]
-        averageTapePoint = (leftTapePoint + rightTapePoint) / 2
-        xError = (self.width / 2) - averageTapePoint
-        angle = -math.atan(xError / 700.0)
 
-        # OLD CODE
-        widthBetweenTapes = rightTapePoint - leftTapePoint
-        expectedWidth = 4875.64456729 * np.power(distance, -0.96150127)
-        if abs(widthBetweenTapes) > expectedWidth:
-            viewAngle = 0
-        else:
-            viewAngle = math.acos(widthBetweenTapes / expectedWidth)
-        # if distances[0] < distances[1]:
-        #     viewAngle = -viewAngle
-        return angle, viewAngle
-
-    def XOffset(self, distance, rectangles) -> float:
-        a = rectangles[0][1][0] * rectangles[0][1][1]
-        b = rectangles[0][1][0] * rectangles[0][1][1]
-
-        if a > b:
-            ratio = -math.sqrt(a / b - 1)
-        else:
-            ratio = math.sqrt(b / a - 1)
-        return ratio * 50
-
-        # print distance, angle, viewAngle
-        # return distance*math.sin(angle+viewAngle)
-
-        # OLD CODE
-        FOV = 60 * math.pi / 180
-        radiansPerPixel = FOV / self.width
-        centerOfImage = self.width / 2
-        XoffsetAngle = radiansPerPixel * (cx - centerOfImage)
-        Xoffset = math.tan(XoffsetAngle) * distance
-        return Xoffset
-
-    def aspectRatioUNUSED(self, rectangles) -> tuple:
-
-        # new code
-        dims = np.array([r[1] for r in rectangles])
-        tapeHeights = np.max(dims, axis=1)
-        leftTapePoint = np.max(cv2.boxPoints(rectangles[0]), axis=0)[0]
-        rightTapePoint = np.min(cv2.boxPoints(rectangles[1]), axis=0)[0]
-        tapeDistance = rightTapePoint - leftTapePoint
-        aspectRatio = tapeDistance / np.mean(tapeHeights)
-        # print tapeDistance, tapeHeights, aspectRatio
-        print
-        np.mean(tapeHeights)
-        # old code
-        # dims = np.array([r[1] for r in rectangles])
-        # aspectRatios = np.max(dims, axis = 1)/np.min(dims, axis=1)
-        # aspectRatio = np.mean(aspectRatios)
-        return aspectRatio, tapeDistance
-
-    def angleOLD(self, rectangles, aspectRatio) -> float:
-        # aspect ratio depends on the height of the target relative to the camera frame
-        base_ratio = 1.44
-        # base_ratio = 3.17
-        # print aspectRatio
-        if aspectRatio > base_ratio:
-            aspectRatio = base_ratio
-        angle = math.acos(aspectRatio / base_ratio)
-        areas = [r[1][0] * r[1][1] for r in rectangles]
-        if areas[0] < areas[1]:
-            angle = -angle
-        if angle == 0:
-            pass
-            # pdb.set_trace()
-        # print aspectRatio, angle*(180/math.pi)
-        return angle
+        return d
 
     def find(self) -> tuple:
         frame = self.acquireImage()
@@ -221,8 +147,10 @@ class target_finder(object):
 
         targets = self.findTargets(thresh)
         rectangles = self.targetRectangles(targets)
-        # rectangles = self.findMatchingPair(rectangles)
-        print("rectangles" , rectangles)
+
+
+        #print("rectangles" , rectangles)
+
         self.color = 0
 
         # found, x, y, angle
@@ -230,28 +158,16 @@ class target_finder(object):
 
         if len(rectangles) > 0:
             cx, cy = self.findCentroid(rectangles).astype(np.int32)
+            
             self.err = cx - (self.width / 2)
-            cv2.circle(frame, (cx, cy), 10, (255, 0, 0), 5)
+            cv2.circle(frame, (cx, cy), 10, (0, 255, 255), 5)
+            
 
-            # NEW
-            distance, distances = self.calculateDistance(rectangles)
-            angle, viewAngle = self.calculateAngle(distance, distances, rectangles)
-            XOffset = self.XOffset(distance, rectangles)
-            result = (True, XOffset, distance, angle * 180 / math.pi)
+            distance = self.calculateDistance(cy)
+            
+            print("distance :" , distance)
 
-            # print distance, angle*180/math.pi, XOffset
-            # ratio, tapeXDistance = self.aspectRatio(rectangles)
-            # angle = self.angle(rectangles, ratio)
-            # result = (True, 0, 0, angle * 180/math.pi)
-
-            # OLD
-            # ratio, tapeXDistance = self.aspectRatio(rectangles)
-            # angle = self.angle(rectangles, ratio)
-            # self.calculateDistance(tapeXDistance, angle)
-            # result = (True, 0, 0, angle * 180/math.pi)
-
-            # print(cx,cy)
-            # print ratio, angle*180/math.pi
+            
         else:
             self.err = -1000
         if self.show:
