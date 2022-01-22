@@ -127,3 +127,4 @@ def main(do_hoop_finder=True, do_ball_finder=True) -> NoReturn:
 
 if __name__ == "__main__":
     main(do_hoop_finder=True, do_ball_finder=False)
+#it works
