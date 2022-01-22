@@ -74,7 +74,7 @@ class target_finder(object):
             if cv2.contourArea(cnt) >= self.minarea:
                 rect = cv2.minAreaRect(cnt)
                 rectangles.append(rect)
-                rectangles.append(rect)
+                #rectangles.append(rect)
                 # check for quadrilateral
                 perimeter = cv2.arcLength(cnt, True)
                 polygon = cv2.approxPolyDP(cnt, 0.04 * perimeter, True)
@@ -90,18 +90,8 @@ class target_finder(object):
         # return rectangles.sort()
 
     def targetRectangles(self, rectangles) -> list:
-        def findAngle(r):
-            if r[1][1] > r[1][0]:
-                angle = r[2]
-            else:
-                angle = r[2] + 90
-            return angle
-
         candidates = []
         for i in range(len(rectangles)):
-            # angle1 = findAngle(rectangles[i])
-            # angle2 = findAngle(rectangles[i + 1])
-            # print(angle1,angle2)
             targetRectangles = [rectangles[i]]
             ex = abs(self.findCentroid(targetRectangles)[0])
             candidates.append((ex, targetRectangles))
@@ -110,11 +100,26 @@ class target_finder(object):
             return []
         else:
             candidates.sort()
-            return candidates[0][1]
+            return [ c[1][0] for c in candidates ] 
+
+
+        #def findAngle(r):
+        #    if r[1][1] > r[1][0]:
+        #        angle = r[2]
+        #    else:
+        #        angle = r[2] + 90
+        #    return angle
+
+        
+            # angle1 = findAngle(rectangles[i])
+            # angle2 = findAngle(rectangles[i + 1])
+            # print(angle1,angle2)
+            
 
     def findCentroid(self, rectangles) -> np.ndarray:
         centers = np.array([r[0] for r in rectangles])
         centroid = np.mean(centers, axis=0)
+        print("centroid : " , centroid)
         return centroid
 
     def calculateDistance(self, rectangles) -> tuple:
@@ -187,7 +192,7 @@ class target_finder(object):
         # dims = np.array([r[1] for r in rectangles])
         # aspectRatios = np.max(dims, axis = 1)/np.min(dims, axis=1)
         # aspectRatio = np.mean(aspectRatios)
-        return aspectRatio, tapeDistance,
+        return aspectRatio, tapeDistance
 
     def angleOLD(self, rectangles, aspectRatio) -> float:
         # aspect ratio depends on the height of the target relative to the camera frame
@@ -217,7 +222,7 @@ class target_finder(object):
         targets = self.findTargets(thresh)
         rectangles = self.targetRectangles(targets)
         # rectangles = self.findMatchingPair(rectangles)
-
+        print("rectangles" , rectangles)
         self.color = 0
 
         # found, x, y, angle

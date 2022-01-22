@@ -59,9 +59,9 @@ def main(do_hoop_finder=True, do_ball_finder=True) -> NoReturn:
             hoop_camera = cv2.VideoCapture(2)
     else:
         if do_hoop_finder:
-            hoop_camera = cv2.VideoCapture(1)
+            hoop_camera = cv2.VideoCapture(0)
         if do_ball_finder:
-            ball_camera = cv2.VideoCapture(0)
+            ball_camera = cv2.VideoCapture(1)
     if do_hoop_finder:
         hoop = target_finder.target_finder(hoop_camera)
     if do_ball_finder:
@@ -126,4 +126,4 @@ def main(do_hoop_finder=True, do_ball_finder=True) -> NoReturn:
 
 
 if __name__ == "__main__":
-    main(do_hoop_finder=False, do_ball_finder=True)
+    main(do_hoop_finder=True, do_ball_finder=False)
