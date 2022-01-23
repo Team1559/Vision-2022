@@ -23,7 +23,7 @@ class target_finder(object):
         # colors are in the BGR color space
         self.hsvl = green_low
         self.hsvh = green_high
-        self.show = True #"show" in sys.argv
+        self.show = False #"show" in sys.argv
         # self.width = 800
         # self.height = 488
         self.width = 0

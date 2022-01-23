@@ -20,8 +20,8 @@ do_hoop_finder = True
 do_ball_finder = True
 hoop_frame = np.zeros(shape=(640, 480, 3))
 ball_frame = np.zeros(shape=(640, 480, 3))
-hoop_result = (0, 0, 0, 0)
-ball_result = (0, 0, 0, 0)
+hoop_result = (False, 0, 0, 0)
+ball_result = (False, 0, 0, 0)
 address = ("10.15.59.2", 5801)
 
 
@@ -68,6 +68,7 @@ def getBall() -> NoReturn:
             ball_result, ball_frame = ball.find()
 
 
+
 @ray.remote
 def main() -> NoReturn:
     context = zmq.Context()
@@ -86,6 +87,7 @@ def main() -> NoReturn:
     while 1:
 
         try:
+
             start = datetime.now()
 
             if not is_jetson and do_hoop_finder and do_ball_finder and hoop_result is not None and ball_result is not \
@@ -147,8 +149,8 @@ def send_data(hoop_found: bool, hoop_x: float, hoop_y: float, hoop_angle: float,
     data = '%3.1f %3.1f %3.1f %3.1f %3.1f %3.1f %d %d %d \n' % (hoop_x, hoop_y, hoop_angle, ball_x, ball_y,
                                                                 ball_angle, ball_status, hoop_status,
                                                                 wait_for_other_robot)
-    if not is_jetson:
-        print(data)
+    # if not is_jetson:
+        # print(data)
     send(data)
 
 
