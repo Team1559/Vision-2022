@@ -6,9 +6,8 @@ import sys
 
 class ball_finder(object):
 
-    def __init__(self, Camera: cv2.VideoCapture) -> NoReturn:
+    def __init__(self) -> NoReturn:
         """Initialize camera"""
-        self.camera = Camera
         # BRIGHTNESS AT 30 for perfect, 85 for driver station
         self.cx = -1
         self.cy = -1
@@ -28,12 +27,9 @@ class ball_finder(object):
         self.out = None
         self.minarea = 10  # 100
 
-    def acquireImage(self) -> np.ndarray:
+    def acquireImage(self, data: np.ndarray) -> np.ndarray:
 
-        success, frame = self.camera.read()
-        if not success:
-            pass
-            # exit(222)
+        frame = data
         self.height, self.width = frame.shape[:2]
         self.out = frame
         return frame
@@ -91,8 +87,8 @@ class ball_finder(object):
         centroid = np.mean(centers, axis=0)
         return centroid
 
-    def find(self) -> tuple:
-        frame = self.acquireImage()
+    def find(self, data: np.ndarray) -> tuple:
+        frame = self.acquireImage(data)
         thresh = self.preImageProcessing(frame)
 
         if self.show:

@@ -13,18 +13,12 @@ import ray
 
 ray.init()
 
-
 is_jetson = False
 cpuArch = ""
 do_hoop_finder = True
 do_ball_finder = True
-hoop_frame = np.zeros(shape=(640, 480, 3))
-ball_frame = np.zeros(shape=(640, 480, 3))
-hoop_result = (False, 0, 0, 0)
-ball_result = (False, 0, 0, 0)
+
 address = ("10.15.59.2", 5801)
-ball = None
-hoop = None
 
 
 def init(do_hoop=True, do_ball=True) -> NoReturn:
@@ -32,17 +26,6 @@ def init(do_hoop=True, do_ball=True) -> NoReturn:
     global cpuArch
     global do_hoop_finder
     global do_ball_finder
-    global ball
-    global hoop
-
-    hoop_camera = cv2.VideoCapture(1)  # ID should be 1
-    if do_hoop_finder:
-        hoop = target_finder.target_finder(hoop_camera)
-
-
-    ball_camera = cv2.VideoCapture(0)  # id should be 0
-    if do_ball_finder:
-        ball = ball_finder.ball_finder(ball_camera)
 
     do_ball_finder = do_ball
     do_hoop_finder = do_hoop
@@ -60,23 +43,19 @@ def init(do_hoop=True, do_ball=True) -> NoReturn:
 
 
 @ray.remote
-def get_hoop() -> NoReturn:
-    global hoop_result
-    global hoop_frame
-    while True:
-        hoop_result, hoop_frame = hoop.find()
+def get_hoop(hoopf) -> tuple:
+    hoop = target_finder.target_finder()
+    hd, hf = hoop.find(hoopf)
+    return hd, hf
 
 
 @ray.remote
-def get_ball() -> NoReturn:
-    global ball_result
-    global ball_frame
-    while True:
-        ball_result, ball_frame = ball.find()
+def get_ball(ballf) -> tuple:
+    ball = ball_finder.ball_finder()
+    bd, bf = ball.find(ballf)
+    return bd, bf
 
 
-
-@ray.remote
 def main() -> NoReturn:
     context = zmq.Context()
     footage_socket = context.socket(zmq.PUB)
@@ -90,16 +69,32 @@ def main() -> NoReturn:
     # dns based address ↓↓↓↓
     # address = ("roborio-1559-frc.local", 5801)
     # ip based address ↓↓↓↓↓
+    ball_camera = cv2.VideoCapture(1)  # id should be 0
+    hoop_camera = cv2.VideoCapture(0)  # ID should be 1
 
     while 1:
 
         try:
+            bs, bf = ball_camera.read()
+            hs, hf = hoop_camera.read()
+            if not bs:
+                print("ball camera error")
+            if not hs:
+                print("hoop camera error")
 
+            h = get_hoop.remote(hf)
+            b = get_ball.remote(bf)
+            ball_data = ray.get(b)
+            hoop_data = ray.get(h)
+
+            hoop_result = hoop_data[0]
+            hoop_frame = hoop_data[1]
             start = datetime.now()
-
+            ball_result = ball_data[0]
+            ball_frame = ball_data[1]
             if not is_jetson and do_hoop_finder and do_ball_finder and hoop_result is not None and ball_result is not \
                     None:
-                print(str(hoop_result) + " <-- Hoop, Ball--> " + str (ball_result))
+                print(str(hoop_result) + " <-- Hoop, Ball--> " + str(ball_result))
             elif not is_jetson and do_hoop_finder and hoop_result is not None:
                 print(str(hoop_result) + " <-- Hoop")
             if not is_jetson and do_ball_finder and ball_result is not None:
@@ -157,12 +152,12 @@ def send_data(hoop_found: bool, hoop_x: float, hoop_y: float, hoop_angle: float,
                                                                 ball_angle, ball_status, hoop_status,
                                                                 wait_for_other_robot)
     # if not is_jetson:
-        # print(data)
+    # print(data)
     send(data)
 
 
 if __name__ == "__main__":
-    init(do_ball=True)
-    ray.get([get_hoop.remote(), get_ball.remote(), main.remote()])
+    init(do_ball=True, do_hoop=True)
+    main()
 
 # it works

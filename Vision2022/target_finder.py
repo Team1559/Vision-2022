@@ -7,9 +7,8 @@ import sys
 
 class target_finder(object):
 
-    def __init__(self, Camera: cv2.VideoCapture) -> NoReturn:
+    def __init__(self) -> NoReturn:
         """Initialize camera"""
-        self.camera = Camera
         # BRIGHTNESS AT 30 for perfect, 85 for driver station
         self.cx = -1
         self.cy = -1
@@ -32,11 +31,9 @@ class target_finder(object):
 
         self.minarea = 10  # 100
 
-    def acquireImage(self) -> np.ndarray:
+    def acquireImage(self, data: np.ndarray) -> np.ndarray:
 
-        success, frame = self.camera.read()
-        if not success:
-            pass
+        frame = data
             # exit(222)
         self.height, self.width = frame.shape[:2]
         return frame
@@ -137,8 +134,8 @@ class target_finder(object):
 
         return d
 
-    def find(self) -> tuple:
-        frame = self.acquireImage()
+    def find(self, data: np.ndarray) -> tuple:
+        frame = self.acquireImage(data)
         thresh = self.preImageProcessing(frame)
 
         if self.show:
