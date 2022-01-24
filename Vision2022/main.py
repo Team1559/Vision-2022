@@ -69,29 +69,38 @@ def main() -> NoReturn:
     # dns based address ↓↓↓↓
     # address = ("roborio-1559-frc.local", 5801)
     # ip based address ↓↓↓↓↓
-    ball_camera = cv2.VideoCapture(1)  # id should be 0
-    hoop_camera = cv2.VideoCapture(0)  # ID should be 1
+    if do_hoop_finder:
+        hoop_camera = cv2.VideoCapture(0)  # ID should be 1
+    if do_ball_finder:
+        ball_camera = cv2.VideoCapture(1)  # id should be 0
+    elif not do_hoop_finder:
+        ball_camera = cv2.VideoCapture(0)
 
     while 1:
-
         try:
-            bs, bf = ball_camera.read()
-            hs, hf = hoop_camera.read()
+            if do_ball_finder:
+                bs, bf = ball_camera.read()
+            if do_hoop_finder:
+                hs, hf = hoop_camera.read()
             if not bs:
                 print("ball camera error")
             if not hs:
                 print("hoop camera error")
 
-            h = get_hoop.remote(hf)
-            b = get_ball.remote(bf)
-            ball_data = ray.get(b)
-            hoop_data = ray.get(h)
+            if do_ball_finder:
+                b = get_ball.remote(bf)
+                ball_data = ray.get(b)
+                ball_result = ball_data[0]
+                ball_frame = ball_data[1]
 
-            hoop_result = hoop_data[0]
-            hoop_frame = hoop_data[1]
+            if do_hoop_finder:
+                h = get_hoop.remote(hf)
+                hoop_data = ray.get(h)
+                hoop_result = hoop_data[0]
+                hoop_frame = hoop_data[1]
+
             start = datetime.now()
-            ball_result = ball_data[0]
-            ball_frame = ball_data[1]
+
             if not is_jetson and do_hoop_finder and do_ball_finder and hoop_result is not None and ball_result is not \
                     None:
                 print(str(hoop_result) + " <-- Hoop, Ball--> " + str(ball_result))
