@@ -165,4 +165,4 @@ if __name__ == "__main__":
     init(do_ball=True, do_hoop=True)
     main()
 
-# it works
+# it works and has multiprocessing now :)
