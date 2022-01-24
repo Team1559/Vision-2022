@@ -4,7 +4,6 @@ from typing import *
 import cv2
 import platform
 from socket import *
-from datetime import datetime
 import zmq
 import numpy as np
 import ball_finder
@@ -54,6 +53,10 @@ def main() -> NoReturn:
         footage_socket.connect('tcp://10.15.59.5:5555')
     else:
         footage_socket.connect('tcp://localhost:5555')
+    ball_camera = None
+    hoop_camera = None
+    hoop_frame = np.shape(640, 480, 3)
+    ball_frame = np.shape(640, 480, 3)
 
     # address = ("169.254.210.151", 5801)
 
@@ -69,6 +72,8 @@ def main() -> NoReturn:
 
     while 1:
         try:
+            hoop_result = None
+            ball_result = None
             if do_ball_finder:
                 ball_cam_status, ball_cam_frame = ball_camera.read()
                 if not ball_cam_status:
@@ -87,8 +92,6 @@ def main() -> NoReturn:
                 hoop_result = hoop_data[0]
                 hoop_frame = hoop_data[1]
 
-            start = datetime.now()
-
             if not is_jetson and do_hoop_finder and do_ball_finder and hoop_result is not None and ball_result is not \
                     None:
                 print(str(hoop_result) + " <-- Hoop, Ball--> " + str(ball_result))
@@ -97,17 +100,15 @@ def main() -> NoReturn:
             if not is_jetson and do_ball_finder and ball_result is not None:
                 print("Ball--> " + str(ball_result))
 
-            end = datetime.now()
-            timeElapsed = end - start
-
             if do_ball_finder and do_hoop_finder and hoop_result is not None and ball_result is not None:
-                send_data(*hoop_result, *ball_result, 0)
+                send_data(hoop_result[0], hoop_result[1], hoop_result[2], hoop_result[3], ball_result[0],
+                          ball_result[1], ball_result[2], ball_result[3], 0)
 
             elif do_ball_finder and not do_hoop_finder and ball_result is not None:
-                send_data(*(False, 0, 0, 0), *ball_result, 0)
+                send_data(*(False, 0, 0, 0), ball_result[0], ball_result[1], ball_result[2], ball_result[3], 0)
 
             elif not do_ball_finder and do_hoop_finder and hoop_result is not None:
-                send_data(*hoop_result, *(False, 0, 0, 0), 0)
+                send_data(hoop_result[0], hoop_result[1], hoop_result[2], hoop_result[3], *(False, 0, 0, 0), 0)
 
             if do_hoop_finder and do_ball_finder and hoop_result is not None and ball_result is not None:
                 # put both frames side by side
@@ -148,8 +149,6 @@ def send_data(hoop_found: bool, hoop_x: float, hoop_y: float, hoop_angle: float,
     data = '%3.1f %3.1f %3.1f %3.1f %3.1f %3.1f %d %d %d \n' % (hoop_x, hoop_y, hoop_angle, ball_x, ball_y,
                                                                 ball_angle, ball_status, hoop_status,
                                                                 wait_for_other_robot)
-    # if not is_jetson:
-    # print(data)
     send(data)
 
 

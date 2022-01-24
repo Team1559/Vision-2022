@@ -4,6 +4,12 @@ import numpy as np
 import sys
 
 
+def findCentroid(rectangles) -> np.ndarray:
+    centers = np.array([r[0] for r in rectangles])
+    centroid = np.mean(centers, axis=0)
+    return centroid
+
+
 class ball_finder(object):
 
     def __init__(self) -> NoReturn:
@@ -71,7 +77,8 @@ class ball_finder(object):
                             maxRadius = r   
                 except IndexError:
                     pass
-                print(np.mean(thresh[max(x-r,0):min(x+r,self.width), max(y-r,0):min(y+r,self.height)]) ) #> 1*3.141519265357962/4
+                print(np.mean(thresh[max(x - r, 0):min(x + r, self.width), max(y - r, 0):min(y + r, self.height)]))
+                # > 1*3.141519265357962/4
             if ball is not None:
                 cv2.circle(output, (ball[0], ball[1]), ball[2], (0, 255, 0), 4)
 
@@ -81,11 +88,6 @@ class ball_finder(object):
         self.out = output
         return circles
         # return rectangles.sort()
-
-    def findCentroid(self, rectangles) -> np.ndarray:
-        centers = np.array([r[0] for r in rectangles])
-        centroid = np.mean(centers, axis=0)
-        return centroid
 
     def find(self, data: np.ndarray) -> tuple:
         frame = self.acquireImage(data)
@@ -99,7 +101,7 @@ class ball_finder(object):
         if self.show:
             cv2.imshow("Unfiltered", frame)
             cv2.waitKey(1)
-        return (10, 10, 10, 0), self.out
+        return (False, 10, 10, 0), self.out
 
 
 if __name__ == "__main__":

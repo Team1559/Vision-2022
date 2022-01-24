@@ -4,11 +4,48 @@ import numpy as np
 import sys
 
 
+def calculateDistance(centroid_y) -> tuple:
+    fov = 45  # degrees
+    imageHeight = 480  # pixels
+    targetPixelY = centroid_y  # pixels
+    cameraHeight = 3  # feet
+    targetHeight = 8.67  # feet
+    angularOffset = 25  # degrees
+    heightDifference = targetHeight - cameraHeight  # feet
+
+    theta = fov / imageHeight * targetPixelY + angularOffset
+    d = heightDifference / np.tan(theta)
+
+    return d
+
+
+def findCentroid(rectangles) -> np.ndarray:
+    centers = np.array([r[0] for r in rectangles])
+    centroid = np.median(centers, axis=0)
+    # print("centroid : " , centroid)
+    return centroid
+
+
+def targetRectangles(rectangles) -> list:
+    candidates = []
+    for i in range(len(rectangles)):
+        target_rectangles = [rectangles[i]]
+        ex = abs(findCentroid(target_rectangles)[0])
+        candidates.append((ex, target_rectangles))
+    # check for candidates then sort by distance from center
+    if not candidates:
+        return []
+    else:
+        candidates.sort()
+        return [c[1][0] for c in candidates]
+
+
 class target_finder(object):
 
     def __init__(self) -> NoReturn:
         """Initialize camera"""
         # BRIGHTNESS AT 30 for perfect, 85 for driver station
+        self.color = 0
         self.cx = -1
         self.cy = -1
         self.err = -1000
@@ -16,8 +53,7 @@ class target_finder(object):
         # self.hsvh = np.array((80, 255, 255))
         green_low = np.array([0, 100, 0])
         green_high = np.array([10, 255, 10])
-        blue_low = np.array((20, 0, 0))
-        blue_high = np.array((255, 40, 40))
+        np.array((20, 0, 0))
         # colors are in the BGR color space
         self.hsvl = green_low
         self.hsvh = green_high
@@ -33,7 +69,7 @@ class target_finder(object):
     def acquireImage(self, data: np.ndarray) -> np.ndarray:
 
         frame = data
-            # exit(222)
+        # exit(222)
         self.height, self.width = frame.shape[:2]
         return frame
 
@@ -60,78 +96,22 @@ class target_finder(object):
 
         contours = sorted(contours, key=cv2.contourArea, reverse=True)[:4]
         rectangles = []
-        #areas = [cv2.contourArea(c) for c in contours]
+        # areas = [cv2.contourArea(c) for c in contours]
         if len(contours) > 0:
             for cnt in contours:
-                #max_index = np.argmax(areas)
-                #cnt = contours[max_index]
+                # max_index = np.argmax(areas)
+                # cnt = contours[max_index]
 
                 # check for min area
                 if cv2.contourArea(cnt) >= self.minarea:
                     rect = cv2.minAreaRect(cnt)
                     rectangles.append(rect)
-                    #rectangles.append(rect)
-                    # check for quadrilateral
-                    perimeter = cv2.arcLength(cnt, True)
-                    polygon = cv2.approxPolyDP(cnt, 0.04 * perimeter, True)
-
-            # check for num of contours did not work
-            # if len(polygon)!=4:
-            #    continue
 
         def xpos(r):
             return r[0][0]
 
         return tuple(sorted(rectangles, key=xpos))
         # return rectangles.sort()
-
-    def targetRectangles(self, rectangles) -> list:
-        candidates = []
-        for i in range(len(rectangles)):
-            targetRectangles = [rectangles[i]]
-            ex = abs(self.findCentroid(targetRectangles)[0])
-            candidates.append((ex, targetRectangles))
-        # check for candidates then sort by distance from center
-        if not candidates:
-            return []
-        else:
-            candidates.sort()
-            return [ c[1][0] for c in candidates ] 
-
-
-        #def findAngle(r):
-        #    if r[1][1] > r[1][0]:
-        #        angle = r[2]
-        #    else:
-        #        angle = r[2] + 90
-        #    return angle
-
-        
-            # angle1 = findAngle(rectangles[i])
-            # angle2 = findAngle(rectangles[i + 1])
-            # print(angle1,angle2)
-            
-
-    def findCentroid(self, rectangles) -> np.ndarray:
-        centers = np.array([r[0] for r in rectangles])
-        centroid = np.median(centers, axis=0)
-        #print("centroid : " , centroid)
-        return centroid
-
-    def calculateDistance(self, centroidy) -> tuple:
-        fov = 45 #degrees
-        imageHeight = 480 #pixels
-        targetPixelY = centroidy #pixels
-        cameraHeight = 3 #feet
-        targetHeight = 8.67 #feet
-        angularOffset = 25 #degrees
-        heightDifference = targetHeight-cameraHeight #feet
-
-        theta = fov/imageHeight*targetPixelY + angularOffset
-        d = heightDifference/np.tan(theta)
-
-
-        return d
 
     def find(self, data: np.ndarray) -> tuple:
         frame = self.acquireImage(data)
@@ -142,28 +122,23 @@ class target_finder(object):
             cv2.waitKey(1)
 
         targets = self.findTargets(thresh)
-        rectangles = self.targetRectangles(targets)
+        rectangles = targetRectangles(targets)
 
-
-        #print("rectangles" , rectangles)
-
-        self.color = 0
+        # print("rectangles" , rectangles)
 
         # found, x, y, angle
         result = (False, 0, 0, 0)
 
         if len(rectangles) > 0:
-            cx, cy = self.findCentroid(rectangles).astype(np.int32)
-            
+            cx, cy = findCentroid(rectangles).astype(np.int32)
+
             self.err = cx - (self.width / 2)
             cv2.circle(frame, (cx, cy), 10, (0, 255, 255), 5)
-            
 
-            distance = self.calculateDistance(cy)
-            
-            print("distance :" , distance)
+            distance = calculateDistance(cy)
 
-            
+            print("distance :", distance)
+
         else:
             self.err = -1000
         if self.show:
