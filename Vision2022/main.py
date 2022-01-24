@@ -11,15 +11,6 @@ import ball_finder
 import target_finder
 import ray
 
-ray.init()
-
-is_jetson = False
-cpuArch = ""
-do_hoop_finder = True
-do_ball_finder = True
-
-address = ("10.15.59.2", 5801)
-
 
 def init(do_hoop=True, do_ball=True) -> NoReturn:
     global is_jetson
@@ -43,16 +34,16 @@ def init(do_hoop=True, do_ball=True) -> NoReturn:
 
 
 @ray.remote
-def get_hoop(hoopf) -> tuple:
+def get_hoop(hoop_frame: np.ndarray) -> tuple:
     hoop = target_finder.target_finder()
-    hd, hf = hoop.find(hoopf)
+    hd, hf = hoop.find(hoop_frame)
     return hd, hf
 
 
 @ray.remote
-def get_ball(ballf) -> tuple:
+def get_ball(ball_frame: np.ndarray) -> tuple:
     ball = ball_finder.ball_finder()
-    bd, bf = ball.find(ballf)
+    bd, bf = ball.find(ball_frame)
     return bd, bf
 
 
@@ -79,23 +70,20 @@ def main() -> NoReturn:
     while 1:
         try:
             if do_ball_finder:
-                bs, bf = ball_camera.read()
-            if do_hoop_finder:
-                hs, hf = hoop_camera.read()
-            if not bs:
-                print("ball camera error")
-            if not hs:
-                print("hoop camera error")
-
-            if do_ball_finder:
-                b = get_ball.remote(bf)
-                ball_data = ray.get(b)
+                ball_cam_status, ball_cam_frame = ball_camera.read()
+                if not ball_cam_status:
+                    print("ball camera error")
+                ball_detector = get_ball.remote(ball_cam_frame)
+                ball_data = ray.get(ball_detector)
                 ball_result = ball_data[0]
                 ball_frame = ball_data[1]
 
             if do_hoop_finder:
-                h = get_hoop.remote(hf)
-                hoop_data = ray.get(h)
+                hoop_cam_status, hoop_cam_frame = hoop_camera.read()
+                if not hoop_cam_status:
+                    print("hoop camera error")
+                hoop_detector = get_hoop.remote(hoop_cam_frame)
+                hoop_data = ray.get(hoop_detector)
                 hoop_result = hoop_data[0]
                 hoop_frame = hoop_data[1]
 
@@ -166,6 +154,15 @@ def send_data(hoop_found: bool, hoop_x: float, hoop_y: float, hoop_angle: float,
 
 
 if __name__ == "__main__":
+    ray.init()
+
+    is_jetson = False
+    cpuArch = ""
+    do_hoop_finder = True
+    do_ball_finder = True
+
+    address = ("10.15.59.2", 5801)
+
     init(do_ball=True, do_hoop=True)
     main()
 
