@@ -2,6 +2,7 @@ from typing import *
 import cv2
 import numpy as np
 import sys
+import ray
 
 
 def findCentroid(rectangles: list) -> np.ndarray:
@@ -53,7 +54,8 @@ class ball_finder(object):
 
         return thresh
 
-    def findTargets(self, frame, thresh) -> np.ndarray:
+    @ray.remote
+    def findTargets(self, frame, thresh) -> tuple:
         filtered = cv2.bitwise_and(frame, frame, mask=thresh)
         if self.show:
             cv2.imshow("Color filtered", filtered)
@@ -85,8 +87,8 @@ class ball_finder(object):
         if self.show:
             cv2.imshow("Circles", output)
             cv2.waitKey(1)
-        self.out = output
-        return circles
+        out = output
+        return circles, out
         # return rectangles.sort()
 
     def find(self, data: np.ndarray) -> tuple:
@@ -96,8 +98,8 @@ class ball_finder(object):
         if self.show:
             cv2.imshow("Thresh", thresh)
             cv2.waitKey(1)
-
-        targets = self.findTargets(frame, thresh)
+        tar = self.findTargets.remote(self, frame, thresh)
+        targets, self.out = ray.get(tar)
         if self.show:
             cv2.imshow("Unfiltered", frame)
             cv2.waitKey(1)

@@ -55,8 +55,9 @@ def main() -> NoReturn:
         footage_socket.connect('tcp://localhost:5555')
     ball_camera = None
     hoop_camera = None
-    hoop_frame = np.shape(640, 480, 3)
-    ball_frame = np.shape(640, 480, 3)
+    hoop_frame = np.zeros(shape=(640, 480, 3))
+    ball_frame = np.zeros(shape=(640, 480, 3))
+
 
     # address = ("169.254.210.151", 5801)
 
@@ -78,6 +79,8 @@ def main() -> NoReturn:
                 ball_cam_status, ball_cam_frame = ball_camera.read()
                 if not ball_cam_status:
                     print("ball camera error")
+                if ball_cam_frame is None:
+                    ball_cam_frame = np.zeros(shape=(640, 480, 3))
                 ball_detector = get_ball.remote(ball_cam_frame)
                 ball_data = ray.get(ball_detector)
                 ball_result = ball_data[0]
@@ -87,6 +90,8 @@ def main() -> NoReturn:
                 hoop_cam_status, hoop_cam_frame = hoop_camera.read()
                 if not hoop_cam_status:
                     print("hoop camera error")
+                if hoop_cam_frame is None:
+                    hoop_cam_frame = np.zeros(shape=(640, 480, 3))
                 hoop_detector = get_hoop.remote(hoop_cam_frame)
                 hoop_data = ray.get(hoop_detector)
                 hoop_result = hoop_data[0]
