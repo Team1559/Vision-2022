@@ -47,17 +47,21 @@ def get_ball(ball_frame: np.ndarray) -> tuple:
 
 
 def main() -> NoReturn:
+    s = socket(AF_INET, SOCK_DGRAM)
+
     context = zmq.Context()
     footage_socket = context.socket(zmq.PUB)
     if is_jetson:
         footage_socket.connect('tcp://10.15.59.5:5555')
+        laptop_address = ("10.15.59.2", 5554)
     else:
         footage_socket.connect('tcp://localhost:5555')
+        laptop_address = ("localhost", 5554)
+
     ball_camera = None
     hoop_camera = None
     hoop_frame = np.zeros(shape=(640, 480, 3))
     ball_frame = np.zeros(shape=(640, 480, 3))
-
 
     # address = ("169.254.210.151", 5801)
 
@@ -126,16 +130,20 @@ def main() -> NoReturn:
                 vis[:h2, w1:w1 + w2, :3] = ball_frame
                 encoded, buffer = cv2.imencode('.jpg', vis)
                 footage_socket.send(buffer)
+                s.sendto(bytes(str(1), 'utf-8'), laptop_address)
 
             elif do_ball_finder and not do_hoop_finder and ball_result is not None:
                 encoded, buffer = cv2.imencode('.jpg', ball_frame)
                 footage_socket.send(buffer)
+                s.sendto(bytes(str(1), 'utf-8'), laptop_address)
 
             elif not do_ball_finder and do_hoop_finder and hoop_result is not None:
                 encoded, buffer = cv2.imencode('.jpg', hoop_frame)
                 footage_socket.send(buffer)
+                s.sendto(bytes(str(1), 'utf-8'), laptop_address)
 
         except KeyboardInterrupt:
+            s.sendto(bytes(str(-1), 'utf-8'), laptop_address)
             cv2.destroyAllWindows()
             print("exiting")
             exit(69420)
