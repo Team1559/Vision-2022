@@ -8,6 +8,7 @@ import zmq
 import numpy as np
 import ball_finder
 import target_finder
+import time
 import ray
 
 
@@ -144,6 +145,7 @@ def main() -> NoReturn:
 
         except KeyboardInterrupt:
             s.sendto(bytes(str(-1), 'utf-8'), laptop_address)
+            time.sleep(0.25)
             cv2.destroyAllWindows()
             print("exiting")
             exit(69420)
