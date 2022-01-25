@@ -4,7 +4,7 @@ import numpy as np
 import sys
 
 
-def findCentroid(rectangles) -> np.ndarray:
+def findCentroid(rectangles: list) -> np.ndarray:
     centers = np.array([r[0] for r in rectangles])
     centroid = np.mean(centers, axis=0)
     return centroid

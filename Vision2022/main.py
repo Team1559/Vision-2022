@@ -70,7 +70,7 @@ def main() -> NoReturn:
     elif not do_hoop_finder:
         ball_camera = cv2.VideoCapture(0)
 
-    while 1:
+    while True:
         try:
             hoop_result = None
             ball_result = None

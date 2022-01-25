@@ -4,7 +4,7 @@ import numpy as np
 import sys
 
 
-def calculateDistance(centroid_y) -> tuple:
+def calculateDistance(centroid_y: np.ndarray) -> tuple:
     fov = 45  # degrees
     imageHeight = 480  # pixels
     targetPixelY = centroid_y  # pixels
@@ -19,7 +19,7 @@ def calculateDistance(centroid_y) -> tuple:
     return d
 
 
-def findCentroid(rectangles) -> np.ndarray:
+def findCentroid(rectangles: list) -> np.ndarray:
     centers = np.array([r[0] for r in rectangles])
     centroid = np.median(centers, axis=0)
     # print("centroid : " , centroid)
