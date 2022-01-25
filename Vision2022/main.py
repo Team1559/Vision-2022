@@ -60,8 +60,8 @@ def main() -> NoReturn:
 
     ball_camera = None
     hoop_camera = None
-    hoop_frame = np.zeros(shape=(640, 480, 3))
-    ball_frame = np.zeros(shape=(640, 480, 3))
+    hoop_frame = np.zeros(shape=(480, 640, 3))
+    ball_frame = np.zeros(shape=(480, 640, 3))
 
     # address = ("169.254.210.151", 5801)
 
@@ -70,7 +70,7 @@ def main() -> NoReturn:
     # ip based address ↓↓↓↓↓
     if do_hoop_finder:
         hoop_camera = cv2.VideoCapture(0)  # ID should be 1
-    if do_ball_finder:
+    if do_ball_finder and do_hoop_finder:
         ball_camera = cv2.VideoCapture(1)  # id should be 0
     elif not do_hoop_finder:
         ball_camera = cv2.VideoCapture(0)
@@ -84,8 +84,8 @@ def main() -> NoReturn:
                 if not ball_cam_status:
                     print("ball camera error")
                 if ball_cam_frame is None:
-                    ball_cam_frame = np.zeros(shape=(640, 480, 3))
-                ball_detector = get_ball.remote(ball_cam_frame)
+                    ball_cam_frame = np.zeros(shape=(480, 640, 3))
+                ball_detector = get_ball.remote(ball_cam_frame.astype('uint8'))
                 ball_data = ray.get(ball_detector)
                 ball_result = ball_data[0]
                 ball_frame = ball_data[1]
@@ -95,8 +95,8 @@ def main() -> NoReturn:
                 if not hoop_cam_status:
                     print("hoop camera error")
                 if hoop_cam_frame is None:
-                    hoop_cam_frame = np.zeros(shape=(640, 480, 3))
-                hoop_detector = get_hoop.remote(hoop_cam_frame)
+                    hoop_cam_frame = np.zeros(shape=(480, 640, 3))
+                hoop_detector = get_hoop.remote(hoop_cam_frame.astype('uint8'))
                 hoop_data = ray.get(hoop_detector)
                 hoop_result = hoop_data[0]
                 hoop_frame = hoop_data[1]
@@ -128,17 +128,17 @@ def main() -> NoReturn:
                 # combine 2 images
                 vis[:h1, :w1, :3] = hoop_frame
                 vis[:h2, w1:w1 + w2, :3] = ball_frame
-                encoded, buffer = cv2.imencode('.jpg', vis)
+                encoded, buffer = cv2.imencode('.jpg', vis.astype('uint8'))
                 footage_socket.send(buffer)
                 s.sendto(bytes(str(1), 'utf-8'), laptop_address)
 
             elif do_ball_finder and not do_hoop_finder and ball_result is not None:
-                encoded, buffer = cv2.imencode('.jpg', ball_frame)
+                encoded, buffer = cv2.imencode('.jpg', ball_frame.astype('uint8'))
                 footage_socket.send(buffer)
                 s.sendto(bytes(str(1), 'utf-8'), laptop_address)
 
             elif not do_ball_finder and do_hoop_finder and hoop_result is not None:
-                encoded, buffer = cv2.imencode('.jpg', hoop_frame)
+                encoded, buffer = cv2.imencode('.jpg', hoop_frame.astype('uint8'))
                 footage_socket.send(buffer)
                 s.sendto(bytes(str(1), 'utf-8'), laptop_address)
 
@@ -175,7 +175,7 @@ if __name__ == "__main__":
 
     address = ("10.15.59.2", 5801)
 
-    init(do_ball=True, do_hoop=True)
+    init(do_ball=True, do_hoop=False)
     main()
 
 # it works and has multiprocessing now :)
