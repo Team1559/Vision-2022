@@ -54,10 +54,8 @@ def main() -> NoReturn:
     footage_socket = context.socket(zmq.PUB)
     if is_jetson:
         footage_socket.connect('tcp://10.15.59.5:5555')
-        laptop_address = ("10.15.59.2", 5554)
     else:
         footage_socket.connect('tcp://localhost:5555')
-        laptop_address = ("localhost", 5554)
 
     ball_camera = None
     hoop_camera = None
@@ -131,20 +129,20 @@ def main() -> NoReturn:
                 vis[:h2, w1:w1 + w2, :3] = ball_frame
                 encoded, buffer = cv2.imencode('.jpg', vis.astype('uint8'))
                 footage_socket.send(buffer)
-                s.sendto(bytes(str(1), 'utf-8'), laptop_address)
+                status(1)
 
             elif do_ball_finder and not do_hoop_finder and ball_result is not None:
                 encoded, buffer = cv2.imencode('.jpg', ball_frame.astype('uint8'))
                 footage_socket.send(buffer)
-                s.sendto(bytes(str(1), 'utf-8'), laptop_address)
+                status(1)
 
             elif not do_ball_finder and do_hoop_finder and hoop_result is not None:
                 encoded, buffer = cv2.imencode('.jpg', hoop_frame.astype('uint8'))
                 footage_socket.send(buffer)
-                s.sendto(bytes(str(1), 'utf-8'), laptop_address)
+                status(1)
 
         except KeyboardInterrupt:
-            s.sendto(bytes(str(-1), 'utf-8'), laptop_address)
+            status(-1)
             time.sleep(0.25)
             cv2.destroyAllWindows()
             print("exiting")
@@ -167,17 +165,33 @@ def send_data(hoop_found: bool, hoop_x: float, hoop_y: float, hoop_angle: float,
     send(data)
 
 
+def status(data: int):
+    s = socket(AF_INET, SOCK_DGRAM)
+    if is_jetson:
+        laptop_address = ("10.15.59.2", 5554)
+    else:
+        laptop_address = ("localhost", 5554)
+        s.sendto(bytes(str(data), 'utf-8'), laptop_address)
+
+
 if __name__ == "__main__":
-    ray.init()
+    try:
+        ray.init()
 
-    is_jetson = False
-    cpuArch = ""
-    do_hoop_finder = True
-    do_ball_finder = True
+        is_jetson = False
+        cpuArch = ""
+        do_hoop_finder = True
+        do_ball_finder = True
 
-    address = ("10.15.59.2", 5801)
+        address = ("10.15.59.2", 5801)
 
-    init(do_ball=True, do_hoop=False)
-    ray.get(main.remote())
+        init(do_ball=True, do_hoop=False)
+        ray.get(main.remote())
 
+    except KeyboardInterrupt:
+        status(-1)
+        time.sleep(0.25)
+        cv2.destroyAllWindows()
+        print("exiting")
+        exit(69420)
 # it works and has multiprocessing now :)
