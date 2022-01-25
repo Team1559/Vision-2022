@@ -98,8 +98,7 @@ class ball_finder(object):
         if self.show:
             cv2.imshow("Thresh", thresh)
             cv2.waitKey(1)
-        tar = self.findTargets.remote(self, frame, thresh)
-        targets, self.out = ray.get(tar)
+        targets, self.out = ray.get(self.findTargets.remote(self, frame, thresh))
         if self.show:
             cv2.imshow("Unfiltered", frame)
             cv2.waitKey(1)
