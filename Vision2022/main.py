@@ -46,7 +46,7 @@ def get_ball(ball_frame: np.ndarray) -> tuple:
     bd, bf = ball.find(ball_frame)
     return bd, bf
 
-
+@ray.remote
 def main() -> NoReturn:
     s = socket(AF_INET, SOCK_DGRAM)
 
@@ -178,6 +178,6 @@ if __name__ == "__main__":
     address = ("10.15.59.2", 5801)
 
     init(do_ball=True, do_hoop=False)
-    main()
+    ray.get(main.remote())
 
 # it works and has multiprocessing now :)
