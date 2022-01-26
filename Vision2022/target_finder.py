@@ -5,6 +5,9 @@ import sys
 
 
 def calculateDistance(centroid_y: np.ndarray) -> tuple:
+    #
+    # uses fov to pixel difference ratio to calculate distance
+    #
     fov = 45  # degrees
     imageHeight = 480  # pixels
     targetPixelY = centroid_y  # pixels
@@ -19,6 +22,9 @@ def calculateDistance(centroid_y: np.ndarray) -> tuple:
     return d
 
 def calculateAngle(centroid_x: np.ndarray) -> tuple:
+    #
+    # uses fov to pixel difference ratio to calculate correction angle
+    #
     fov = 77  # degrees
     imageWidth = 640  # pixels
     targetPixelX = centroid_x  # pixels
