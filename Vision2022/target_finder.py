@@ -18,6 +18,17 @@ def calculateDistance(centroid_y: np.ndarray) -> tuple:
 
     return d
 
+def calculateAngle(centroid_x: np.ndarray) -> tuple:
+    fov = 77  # degrees
+    imageWidth = 640  # pixels
+    targetPixelX = centroid_x  # pixels
+
+    pasta = (imageWidth/2 - targetPixelX) 
+
+    theta = fov*pasta/imageWidth
+
+    return theta
+
 
 def findCentroid(rectangles: list) -> np.ndarray:
     centers = np.array([r[0] for r in rectangles])
