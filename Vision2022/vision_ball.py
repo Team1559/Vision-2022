@@ -4,7 +4,6 @@ import cv2
 import platform
 from socket import *
 from datetime import datetime
-import zmq
 from Vision2022 import ball_finder
 
 

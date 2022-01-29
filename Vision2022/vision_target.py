@@ -5,7 +5,6 @@ import platform
 import target_finder
 from socket import *
 from datetime import datetime
-import zmq
 
 
 def main():

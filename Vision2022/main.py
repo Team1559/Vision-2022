@@ -3,7 +3,7 @@ import subprocess
 import cv2
 import platform
 from socket import *
-import zmq
+# import zmq
 import numpy as np
 import ball_finder
 import target_finder
@@ -27,8 +27,8 @@ def init(do_hoop=True, do_ball=True):
     if is_jetson:
         subprocess.check_call(["uvcdynctrl", "-s", "White Balance Temperature, Auto", "0"])
         subprocess.check_call(["uvcdynctrl", "-s", "Brightness", "30"])
-        subprocess.check_call(["uvcdynctrl", "-s", "Exposure, Auto", "1"])
-        subprocess.check_call(["uvcdynctrl", "-s", "Exposure (Absolute)", "5"])
+        #subprocess.check_call(["uvcdynctrl", "-s", "Exposure, Auto", "1"])
+        #subprocess.check_call(["uvcdynctrl", "-s", "Exposure (Absolute)", "5"])
 
 def get_hoop(hoop_frame):
     hoop = target_finder.target_finder()
@@ -43,12 +43,12 @@ def get_ball(ball_frame):
 def main():
     s = socket(AF_INET, SOCK_DGRAM)
 
-    context = zmq.Context()
-    footage_socket = context.socket(zmq.PUB)
-    if is_jetson:
-        footage_socket.connect('tcp://10.15.59.5:5555')
-    else:
-        footage_socket.connect('tcp://localhost:5555')
+    # context = zmq.Context()
+    # footage_socket = context.socket(zmq.PUB)
+    # if is_jetson:
+    #     footage_socket.connect('tcp://10.15.59.5:5555')
+    # else:
+    #     footage_socket.connect('tcp://localhost:5555')
 
     ball_camera = None
     hoop_camera = None
@@ -77,8 +77,8 @@ def main():
                     print("ball camera error")
                 if ball_cam_frame is None:
                     ball_cam_frame = np.zeros(shape=(480, 640, 3))
-                ball_detector = get_ball.remote(ball_cam_frame.astype('uint8'))
-                ball_data = ray.get(ball_detector)
+                ball_detector = get_ball(ball_cam_frame.astype('uint8'))
+                ball_data = ball_detector
                 ball_result = ball_data[0]
                 ball_frame = ball_data[1]
 
@@ -88,8 +88,8 @@ def main():
                     print("hoop camera error")
                 if hoop_cam_frame is None:
                     hoop_cam_frame = np.zeros(shape=(480, 640, 3))
-                hoop_detector = get_hoop.remote(hoop_cam_frame.astype('uint8'))
-                hoop_data = ray.get(hoop_detector)
+                hoop_detector = get_hoop(hoop_cam_frame.astype('uint8'))
+                hoop_data = hoop_detector
                 hoop_result = hoop_data[0]
                 hoop_frame = hoop_data[1]
 
@@ -121,17 +121,17 @@ def main():
                 vis[:h1, :w1, :3] = hoop_frame
                 vis[:h2, w1:w1 + w2, :3] = ball_frame
                 encoded, buffer = cv2.imencode('.jpg', vis.astype('uint8'))
-                footage_socket.send(buffer)
+                # footage_socket.send(buffer)
                 status(1)
 
             elif do_ball_finder and not do_hoop_finder and ball_result is not None:
                 encoded, buffer = cv2.imencode('.jpg', ball_frame.astype('uint8'))
-                footage_socket.send(buffer)
+                # footage_socket.send(buffer)
                 status(1)
 
             elif not do_ball_finder and do_hoop_finder and hoop_result is not None:
                 encoded, buffer = cv2.imencode('.jpg', hoop_frame.astype('uint8'))
-                footage_socket.send(buffer)
+                # footage_socket.send(buffer)
                 status(1)
 
         except KeyboardInterrupt:
@@ -144,7 +144,7 @@ def main():
 
 def send(data):
     s = socket(AF_INET, SOCK_DGRAM)
-    s.sendto(bytes(data, 'utf-8'), address)
+    s.sendto(data.encode('utf-8'), address)
 
 
 def send_data(hoop_found, hoop_x, hoop_y, hoop_angle, ball_found, ball_x,
@@ -169,7 +169,6 @@ def status(data):
 
 if __name__ == "__main__":
     try:
-        ray.init()
 
         is_jetson = False
         cpuArch = ""
@@ -179,7 +178,7 @@ if __name__ == "__main__":
         address = ("10.15.59.2", 5801)
 
         init(do_ball=True, do_hoop=False)
-        # ray.get(main.remote()) What is the replacement?
+	main()
 
     except KeyboardInterrupt:
         status(-1)
