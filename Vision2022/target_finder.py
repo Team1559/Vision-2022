@@ -59,7 +59,7 @@ def targetRectangles(rectangles):
 
 class target_finder(object):
 
-    def __init__(self) -> NoReturn:
+    def __init__(self):
         """Initialize camera"""
         # BRIGHTNESS AT 30 for perfect, 85 for driver station
         self.color = 0
