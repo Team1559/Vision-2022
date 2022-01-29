@@ -58,9 +58,9 @@ def main():
 
     # address = ("169.254.210.151", 5801)
 
-    # dns based address ↓↓↓↓
+    # dns based address
     # address = ("roborio-1559-frc.local", 5801)
-    # ip based address ↓↓↓↓↓
+    # ip based address 
     if do_hoop_finder:
         hoop_camera = cv2.VideoCapture(0)  # ID should be 1
     if do_ball_finder and do_hoop_finder:
