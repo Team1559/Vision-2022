@@ -1,6 +1,5 @@
 #!/usr/bin/python
 import subprocess
-from typing import *
 import cv2
 import platform
 from socket import *
@@ -107,10 +106,10 @@ def main():
                           ball_result[1], ball_result[2], ball_result[3], 0)
 
             elif do_ball_finder and not do_hoop_finder and ball_result is not None:
-                send_data(*(False, 0, 0, 0), ball_result[0], ball_result[1], ball_result[2], ball_result[3], 0)
+                send_data(False, 0, 0, 0, ball_result[0], ball_result[1], ball_result[2], ball_result[3], 0)
 
             elif not do_ball_finder and do_hoop_finder and hoop_result is not None:
-                send_data(hoop_result[0], hoop_result[1], hoop_result[2], hoop_result[3], *(False, 0, 0, 0), 0)
+                send_data(hoop_result[0], hoop_result[1], hoop_result[2], hoop_result[3], False, 0, 0, 0, 0)
 
             if do_hoop_finder and do_ball_finder and hoop_result is not None and ball_result is not None:
                 # put both frames side by side
