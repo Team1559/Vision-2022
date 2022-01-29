@@ -9,10 +9,9 @@ import numpy as np
 import ball_finder
 import target_finder
 import time
-import ray
 
 
-def init(do_hoop=True, do_ball=True) -> NoReturn:
+def init(do_hoop=True, do_ball=True):
     global is_jetson
     global cpuArch
     global do_hoop_finder
@@ -32,22 +31,17 @@ def init(do_hoop=True, do_ball=True) -> NoReturn:
         subprocess.check_call(["uvcdynctrl", "-s", "Exposure, Auto", "1"])
         subprocess.check_call(["uvcdynctrl", "-s", "Exposure (Absolute)", "5"])
 
-
-@ray.remote
-def get_hoop(hoop_frame: np.ndarray) -> tuple:
+def get_hoop(hoop_frame):
     hoop = target_finder.target_finder()
     hd, hf = hoop.find(hoop_frame)
     return hd, hf
 
-
-@ray.remote
-def get_ball(ball_frame: np.ndarray) -> tuple:
+def get_ball(ball_frame):
     ball = ball_finder.ball_finder()
     bd, bf = ball.find(ball_frame)
     return bd, bf
 
-@ray.remote
-def main() -> NoReturn:
+def main():
     s = socket(AF_INET, SOCK_DGRAM)
 
     context = zmq.Context()
@@ -149,13 +143,13 @@ def main() -> NoReturn:
             exit(69420)
 
 
-def send(data: str) -> NoReturn:
+def send(data):
     s = socket(AF_INET, SOCK_DGRAM)
     s.sendto(bytes(data, 'utf-8'), address)
 
 
-def send_data(hoop_found: bool, hoop_x: float, hoop_y: float, hoop_angle: float, ball_found: bool, ball_x: float,
-              ball_y: float, ball_angle: float, wait_for_other_robot: int) -> NoReturn:
+def send_data(hoop_found, hoop_x, hoop_y, hoop_angle, ball_found, ball_x,
+              ball_y, ball_angle, wait_for_other_robot):
     ball_status = 1 if ball_found else 0
     hoop_status = 1 if hoop_found else 0
 
@@ -165,7 +159,7 @@ def send_data(hoop_found: bool, hoop_x: float, hoop_y: float, hoop_angle: float,
     send(data)
 
 
-def status(data: int):
+def status(data):
     s = socket(AF_INET, SOCK_DGRAM)
     if is_jetson:
         laptop_address = ("10.15.59.2", 5554)
@@ -186,7 +180,7 @@ if __name__ == "__main__":
         address = ("10.15.59.2", 5801)
 
         init(do_ball=True, do_hoop=False)
-        ray.get(main.remote())
+        # ray.get(main.remote()) What is the replacement?
 
     except KeyboardInterrupt:
         status(-1)
