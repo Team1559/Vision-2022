@@ -25,10 +25,11 @@ def init(do_hoop=True, do_ball=True):
         is_jetson = True
 
     if is_jetson:
-        subprocess.check_call(["uvcdynctrl", "-s", "White Balance Temperature, Auto", "0"])
-        subprocess.check_call(["uvcdynctrl", "-s", "Brightness", "30"])
-        #subprocess.check_call(["uvcdynctrl", "-s", "Exposure, Auto", "1"])
-        #subprocess.check_call(["uvcdynctrl", "-s", "Exposure (Absolute)", "5"])
+        subprocess.check_call(["uvcdynctrl", "-s", "White Balance Temperature, Auto","0"])
+        subprocess.check_call(["uvcdynctrl", "-s", "Brightness", "128"])
+        subprocess.check_call(["uvcdynctrl", "-s", "Contrast", "128"])
+        subprocess.check_call(["uvcdynctrl", "-s", "Exposure, Auto", "2"])
+        subprocess.check_call(["uvcdynctrl", "-s", "Exposure (Absolute)","2500"])
 
 def get_hoop(hoop_frame):
     hoop = target_finder.target_finder()
@@ -66,6 +67,9 @@ def main():
         ball_camera = cv2.VideoCapture(1)  # id should be 0
     elif not do_hoop_finder:
         ball_camera = cv2.VideoCapture(0)
+
+    ball_camera.set(cv2.CAP_PROP_EXPOSURE, -1)
+    ball_camera.set(cv2.CAP_PROP_AUTO_EXPOSURE, 1)
 
     while True:
         try:
