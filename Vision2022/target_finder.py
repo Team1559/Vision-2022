@@ -106,7 +106,7 @@ class target_finder(object):
     def findTargets(self, thresh):
         # find some contours
         # im2 is useless and used as a filler value
-        contours, hierarchy = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        _ ,contours, hierarchy = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
         # grab both min area rectangles
 
@@ -135,7 +135,7 @@ class target_finder(object):
 
         if self.show:
             cv2.imshow("Filtered", thresh)
-            cv2.waitKey(1)
+            # cv2.waitKey(1)
 
         targets = self.findTargets(thresh)
         rectangles = targetRectangles(targets)
@@ -160,7 +160,7 @@ class target_finder(object):
             self.err = -1000
         if self.show:
             cv2.imshow("Unfiltered", frame)
-            cv2.waitKey(1)
+            # cv2.waitKey(1)
         return result, frame
 
 

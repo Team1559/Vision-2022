@@ -37,10 +37,11 @@ def main():
         send(data)
 
     if is_jetson:
-        subprocess.check_call(["uvcdynctrl", "-s", "White Balance Temperature, Auto", "0"])
-        subprocess.check_call(["uvcdynctrl", "-s", "Brightness", "30"])
-        subprocess.check_call(["uvcdynctrl", "-s", "Exposure, Auto", "1"])
-        subprocess.check_call(["uvcdynctrl", "-s", "Exposure (Absolute)", "5"])
+        pass
+        #subprocess.check_call(["uvcdynctrl", "-s", "White Balance Temperature, Auto", "0"])
+        #subprocess.check_call(["uvcdynctrl", "-s", "Brightness", "30"])
+        #subprocess.check_call(["uvcdynctrl", "-s", "Exposure, Auto", "1"])
+        #subprocess.check_call(["uvcdynctrl", "-s", "Exposure (Absolute)", "5"])
     if is_jetson:
         camera = cv2.VideoCapture(1)
     else:

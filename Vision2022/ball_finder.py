@@ -56,19 +56,20 @@ class ball_finder(object):
         filtered = cv2.bitwise_and(frame, frame, mask=thresh)
         if self.show:
             cv2.imshow("Color filtered", filtered)
-        cv2.waitKey(1)
+        #cv2.waitKey(1)
 
         circles = cv2.HoughCircles(cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY), cv2.HOUGH_GRADIENT, 1, 75, param1=90,
                                    param2=20, minRadius=10, maxRadius=200)
         output = frame.copy()
         # ensure at least some circles were found
         if circles is not None:
+            print("cirlces" , len(circles))
             # convert the (x, y) coordinates and radius of the circles to integers
             circles = np.round(circles[0, :]).astype("int")
             # loop over the (x, y) coordinates and radius of the circles
             ball = None
             maxRadius = 0
-            for (x, y, r) in circles:
+            for (x, y, r) in circles: #AHUDjknSJDA
                 try:
                     if filtered[y][x][2] > 0:
                         if r > maxRadius:
@@ -76,7 +77,7 @@ class ball_finder(object):
                             maxRadius = r   
                 except IndexError:
                     pass
-                print(np.mean(thresh[max(x - r, 0):min(x + r, self.width), max(y - r, 0):min(y + r, self.height)]))
+                #print(np.mean(thresh[max(x - r, 0):min(x + r, self.width), max(y - r, 0):min(y + r, self.height)]))
                 # > 1*3.141519265357962/4
             if ball is not None:
                 cv2.circle(output, (ball[0], ball[1]), ball[2], (0, 255, 0), 4)
@@ -94,11 +95,11 @@ class ball_finder(object):
 
         if self.show:
             cv2.imshow("Thresh", thresh)
-            cv2.waitKey(1)
+            #cv2.waitKey(1)
         targets, self.out = self.findTargets(frame, thresh)
         if self.show:
             cv2.imshow("Unfiltered", frame)
-            cv2.waitKey(1)
+            #cv2.waitKey(1)
         return (False, 10, 10, 0), self.out
 
 

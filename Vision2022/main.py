@@ -25,11 +25,17 @@ def init(do_hoop=True, do_ball=True):
         is_jetson = True
 
     if is_jetson:
+        subprocess.check_call(["uvcdynctrl", "-s", "White Balance Temperature","4659"])
         subprocess.check_call(["uvcdynctrl", "-s", "White Balance Temperature, Auto","0"])
         subprocess.check_call(["uvcdynctrl", "-s", "Brightness", "128"])
+        subprocess.check_call(["uvcdynctrl", "-s", "Sharpness", "128"])
         subprocess.check_call(["uvcdynctrl", "-s", "Contrast", "128"])
         subprocess.check_call(["uvcdynctrl", "-s", "Exposure, Auto", "2"])
-        subprocess.check_call(["uvcdynctrl", "-s", "Exposure (Absolute)","2500"])
+        subprocess.check_call(["uvcdynctrl", "-s", "Exposure (Absolute)","1300"])
+
+        print(subprocess.check_output(["uvcdynctrl", "-g", "Brightness"]))
+        print(subprocess.check_output(["uvcdynctrl", "-g", "Exposure (Absolute)"]))
+
 
 def get_hoop(hoop_frame):
     hoop = target_finder.target_finder()
@@ -68,8 +74,8 @@ def main():
     elif not do_hoop_finder:
         ball_camera = cv2.VideoCapture(0)
 
-    ball_camera.set(cv2.CAP_PROP_EXPOSURE, -1)
-    ball_camera.set(cv2.CAP_PROP_AUTO_EXPOSURE, 1)
+    #ball_camera.set(cv2.CAP_PROP_EXPOSURE, -1)
+    #ball_camera.set(cv2.CAP_PROP_AUTO_EXPOSURE, 1)
 
     while True:
         try:
@@ -181,7 +187,7 @@ if __name__ == "__main__":
 
         address = ("10.15.59.2", 5801)
 
-        init(do_ball=True, do_hoop=False)
+        init(do_ball=False, do_hoop=True)
 	main()
 
     except KeyboardInterrupt:
