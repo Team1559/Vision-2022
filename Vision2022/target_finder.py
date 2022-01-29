@@ -4,7 +4,7 @@ import numpy as np
 import sys
 
 
-def calculateDistance(centroid_y: np.ndarray) -> tuple:
+def calculateDistance(centroid_y):
     #
     # uses fov to pixel difference ratio to calculate distance
     #
@@ -21,7 +21,7 @@ def calculateDistance(centroid_y: np.ndarray) -> tuple:
 
     return d
 
-def calculateAngle(centroid_x: np.ndarray) -> tuple:
+def calculateAngle(centroid_x):
     #
     # uses fov to pixel difference ratio to calculate correction angle
     #
@@ -36,14 +36,14 @@ def calculateAngle(centroid_x: np.ndarray) -> tuple:
     return theta
 
 
-def findCentroid(rectangles: list) -> np.ndarray:
+def findCentroid(rectangles):
     centers = np.array([r[0] for r in rectangles])
     centroid = np.median(centers, axis=0)
     # print("centroid : " , centroid)
     return centroid
 
 
-def targetRectangles(rectangles) -> list:
+def targetRectangles(rectangles):
     candidates = []
     for i in range(len(rectangles)):
         target_rectangles = [rectangles[i]]
@@ -83,14 +83,14 @@ class target_finder(object):
 
         self.minarea = 10  # 100
 
-    def acquireImage(self, data: np.ndarray) -> np.ndarray:
+    def acquireImage(self, data):
 
         frame = data
         # exit(222)
         self.height, self.width = frame.shape[:2]
         return frame
 
-    def preImageProcessing(self, frame) -> np.ndarray:
+    def preImageProcessing(self, frame):
         # convert to hsv
         # hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
         hsv = frame
@@ -104,7 +104,7 @@ class target_finder(object):
         thresh = cv2.dilate(thresh, (7, 7))
         return thresh
 
-    def findTargets(self, thresh) -> tuple:
+    def findTargets(self, thresh):
         # find some contours
         # im2 is useless and used as a filler value
         contours, hierarchy = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
@@ -130,7 +130,7 @@ class target_finder(object):
         return tuple(sorted(rectangles, key=xpos))
         # return rectangles.sort()
 
-    def find(self, data: np.ndarray) -> tuple:
+    def find(self, data):
         frame = self.acquireImage(data)
         thresh = self.preImageProcessing(frame)
 
