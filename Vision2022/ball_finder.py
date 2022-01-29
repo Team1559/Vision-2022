@@ -2,10 +2,9 @@ from typing import *
 import cv2
 import numpy as np
 import sys
-import ray
 
 
-def findCentroid(rectangles: list) -> np.ndarray:
+def findCentroid(rectangles):
     centers = np.array([r[0] for r in rectangles])
     centroid = np.mean(centers, axis=0)
     return centroid
@@ -13,7 +12,7 @@ def findCentroid(rectangles: list) -> np.ndarray:
 
 class ball_finder(object):
 
-    def __init__(self) -> NoReturn:
+    def __init__(self):
         """Initialize camera"""
         # BRIGHTNESS AT 30 for perfect, 85 for driver station
         self.cx = -1
@@ -34,14 +33,14 @@ class ball_finder(object):
         self.out = None
         self.minarea = 10  # 100
 
-    def acquireImage(self, data: np.ndarray) -> np.ndarray:
+    def acquireImage(self, data):
 
         frame = data
         self.height, self.width = frame.shape[:2]
         self.out = frame
         return frame
 
-    def preImageProcessing(self, frame) -> np.ndarray:
+    def preImageProcessing(self, frame):
         # convert to hsv
         hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
         # blur me
@@ -54,8 +53,7 @@ class ball_finder(object):
 
         return thresh
 
-    @ray.remote
-    def findTargets(self, frame, thresh) -> tuple:
+    def findTargets(self, frame, thresh):
         filtered = cv2.bitwise_and(frame, frame, mask=thresh)
         if self.show:
             cv2.imshow("Color filtered", filtered)
@@ -91,7 +89,7 @@ class ball_finder(object):
         return circles, out
         # return rectangles.sort()
 
-    def find(self, data: np.ndarray) -> tuple:
+    def find(self, data):
         frame = self.acquireImage(data)
         thresh = self.preImageProcessing(frame)
 
