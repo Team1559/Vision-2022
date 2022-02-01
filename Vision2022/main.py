@@ -81,13 +81,19 @@ def main():
         try:
             hoop_result = None
             ball_result = None
+            elapsed = ""
+
             if do_ball_finder:
                 ball_cam_status, ball_cam_frame = ball_camera.read()
                 if not ball_cam_status:
                     print("ball camera error")
                 if ball_cam_frame is None:
                     ball_cam_frame = np.zeros(shape=(480, 640, 3))
+                start_time = time.time()
                 ball_detector = get_ball(ball_cam_frame.astype('uint8'))
+                end_time = time.time()
+                elapsed = " " + str(round(1000*(end_time - start_time), 1))
+
                 ball_data = ball_detector
                 ball_result = ball_data[0]
                 ball_frame = ball_data[1]
@@ -105,11 +111,11 @@ def main():
 
             if not is_jetson and do_hoop_finder and do_ball_finder and hoop_result is not None and ball_result is not \
                     None:
-                print(str(hoop_result) + " <-- Hoop, Ball--> " + str(ball_result))
+                print(str(hoop_result) + " <-- Hoop, Ball--> " + str(ball_result) + elapsed)
             elif not is_jetson and do_hoop_finder and hoop_result is not None:
-                print(str(hoop_result) + " <-- Hoop")
-            if not is_jetson and do_ball_finder and ball_result is not None:
-                print("Ball--> " + str(ball_result))
+                print(str(hoop_result) + " <-- Hoop" + elapsed)
+            elif not is_jetson and do_ball_finder and ball_result is not None:
+                print("Ball--> " + str(ball_result) + elapsed)
 
             if do_ball_finder and do_hoop_finder and hoop_result is not None and ball_result is not None:
                 send_data(hoop_result[0], hoop_result[1], hoop_result[2], hoop_result[3], ball_result[0],
@@ -187,8 +193,8 @@ if __name__ == "__main__":
 
         address = ("10.15.59.2", 5801)
 
-        init(do_ball=False, do_hoop=True)
-	main()
+        init(do_ball=True, do_hoop=False)
+        main()
 
     except KeyboardInterrupt:
         status(-1)
