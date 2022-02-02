@@ -53,13 +53,14 @@ class ball_finder(object):
         return thresh
 
     def findTargets(self, frame, thresh):
-        filtered = cv2.bitwise_and(frame, frame, mask=thresh)
+        # filtered = cv2.bitwise_and(frame, frame, mask=thresh)
         if self.show:
-            cv2.imshow("Color filtered", filtered)
+            # cv2.imshow("Color filtered", filtered)
+            pass
         #cv2.waitKey(1)
 
-        circles = cv2.HoughCircles(cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY), cv2.HOUGH_GRADIENT, 1, 75, param1=90,
-                                   param2=20, minRadius=10, maxRadius=200)
+        circles = cv2.HoughCircles(thresh, cv2.HOUGH_GRADIENT, 1, 75, param1=255,
+                                   param2=14, minRadius=10, maxRadius=200) # hi eric
         output = frame.copy()
         # ensure at least some circles were found
         if circles is not None:
@@ -71,7 +72,7 @@ class ball_finder(object):
             maxRadius = 0
             for (x, y, r) in circles:
                 try:
-                    if filtered[y][x][2] > 0:
+                    if thresh[y][x] > 0:
                         if r > maxRadius:
                             ball = (x, y, r)
                             maxRadius = r   
@@ -94,11 +95,13 @@ class ball_finder(object):
         thresh = self.preImageProcessing(frame)
 
         if self.show:
-            cv2.imshow("BallCam", frame)
+            pass
+            # cv2.imshow("BallCam", frame)
             #cv2.waitKey(1)
         targets, self.out = self.findTargets(frame, thresh)
         if self.show:
-            cv2.imshow("Ball Thresh", thresh)
+            pass
+            # cv2.imshow("Ball Thresh", thresh)
             #cv2.waitKey(1)
         return (False, 10, 10, 0), self.out
 

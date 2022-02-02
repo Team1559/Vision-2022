@@ -31,7 +31,7 @@ def init(do_hoop=True, do_ball=True):
         subprocess.check_call(["uvcdynctrl", "-s", "Sharpness", "128"])
         subprocess.check_call(["uvcdynctrl", "-s", "Contrast", "128"])
         subprocess.check_call(["uvcdynctrl", "-s", "Exposure, Auto", "2"])
-        subprocess.check_call(["uvcdynctrl", "-s", "Exposure (Absolute)","1300"])
+        subprocess.check_call(["uvcdynctrl", "-s", "Exposure (Absolute)","1600"])
 
         print(subprocess.check_output(["uvcdynctrl", "-g", "Brightness"]))
         print(subprocess.check_output(["uvcdynctrl", "-g", "Exposure (Absolute)"]))
@@ -116,7 +116,7 @@ def main():
                 print(str(hoop_result) + " <-- Hoop" + elapsed)
             elif not is_jetson and do_ball_finder and ball_result is not None:
                 print("Ball--> " + str(ball_result) + elapsed)
-
+            print("Ball--> " + str(ball_result) + elapsed)
             if do_ball_finder and do_hoop_finder and hoop_result is not None and ball_result is not None:
                 send_data(hoop_result[0], hoop_result[1], hoop_result[2], 0, ball_result[0],
                           ball_result[1], ball_result[2], ball_result[3], 0)
@@ -149,6 +149,7 @@ def main():
                 encoded, buffer = cv2.imencode('.jpg', hoop_frame.astype('uint8'))
                 # footage_socket.send(buffer)
                 # status(1)
+	    cv2.waitKey(1)
 
         except KeyboardInterrupt:
             # status(-1)
