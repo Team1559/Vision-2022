@@ -25,13 +25,13 @@ def init(do_hoop=True, do_ball=True):
         is_jetson = True
 
     if is_jetson:
-        subprocess.check_call(["uvcdynctrl", "-s", "White Balance Temperature","4659"])
-        subprocess.check_call(["uvcdynctrl", "-s", "White Balance Temperature, Auto","0"])
+        subprocess.check_call(["uvcdynctrl", "-s", "White Balance Temperature", "4659"])
+        subprocess.check_call(["uvcdynctrl", "-s", "White Balance Temperature, Auto", "0"])
         subprocess.check_call(["uvcdynctrl", "-s", "Brightness", "128"])
         subprocess.check_call(["uvcdynctrl", "-s", "Sharpness", "128"])
         subprocess.check_call(["uvcdynctrl", "-s", "Contrast", "128"])
         subprocess.check_call(["uvcdynctrl", "-s", "Exposure, Auto", "2"])
-        subprocess.check_call(["uvcdynctrl", "-s", "Exposure (Absolute)","1600"])
+        subprocess.check_call(["uvcdynctrl", "-s", "Exposure (Absolute)", "1600"])
 
         print(subprocess.check_output(["uvcdynctrl", "-g", "Brightness"]))
         print(subprocess.check_output(["uvcdynctrl", "-g", "Exposure (Absolute)"]))
@@ -42,10 +42,12 @@ def get_hoop(hoop_frame):
     hd, hf = hoop.find(hoop_frame)
     return hd, hf
 
+
 def get_ball(ball_frame):
     ball = ball_finder.ball_finder()
     bd, bf = ball.find(ball_frame)
     return bd, bf
+
 
 def main():
     s = socket(AF_INET, SOCK_DGRAM)
@@ -74,8 +76,8 @@ def main():
     elif not do_hoop_finder:
         ball_camera = cv2.VideoCapture(0)
 
-    #ball_camera.set(cv2.CAP_PROP_EXPOSURE, -1)
-    #ball_camera.set(cv2.CAP_PROP_AUTO_EXPOSURE, 1)
+    # ball_camera.set(cv2.CAP_PROP_EXPOSURE, -1)
+    # ball_camera.set(cv2.CAP_PROP_AUTO_EXPOSURE, 1)
 
     while True:
         try:
@@ -92,7 +94,7 @@ def main():
                 start_time = time.time()
                 ball_detector = get_ball(ball_cam_frame.astype('uint8'))
                 end_time = time.time()
-                elapsed = " " + str(round(1000*(end_time - start_time), 1))
+                elapsed = " " + str(round(1000 * (end_time - start_time), 1))
 
                 ball_data = ball_detector
                 ball_result = ball_data[0]
@@ -117,8 +119,8 @@ def main():
             elif not is_jetson and do_ball_finder and ball_result is not None:
                 if ball_result[0]:
                     print("Ball--> " + str(ball_result) + elapsed)
-            if ball_result[0]:
-                print("Ball--> " + str(ball_result) + elapsed)
+            # if ball_result[0] :
+            #     print("Ball--> " + str(ball_result) + elapsed)
             if do_ball_finder and do_hoop_finder and hoop_result is not None and ball_result is not None:
                 send_data(hoop_result[0], hoop_result[1], hoop_result[2], 0, ball_result[0],
                           ball_result[1], ball_result[2], ball_result[3], 0)
@@ -151,7 +153,7 @@ def main():
                 encoded, buffer = cv2.imencode('.jpg', hoop_frame.astype('uint8'))
                 # footage_socket.send(buffer)
                 # status(1)
-	    cv2.waitKey(1)
+            cv2.waitKey(1)
 
         except KeyboardInterrupt:
             # status(-1)
@@ -175,6 +177,8 @@ def send_data(hoop_found, hoop_x, hoop_y, hoop_angle, ball_found, ball_x,
                                                                 ball_angle, ball_status, hoop_status,
                                                                 wait_for_other_robot)
     send(data)
+    if is_jetson:
+        print(data)
 
 
 def status(data):
