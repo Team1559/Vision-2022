@@ -134,7 +134,7 @@ class target_finder(object):
         thresh = self.preImageProcessing(frame)
 
         if self.show:
-            cv2.imshow("Filtered", thresh)
+            cv2.imshow("Targets", thresh)
             # cv2.waitKey(1)
 
         targets = self.findTargets(thresh)
@@ -159,8 +159,8 @@ class target_finder(object):
         else:
             self.err = -1000
         if self.show:
-            cv2.imshow("Unfiltered", frame)
-            # cv2.waitKey(1)
+            cv2.imshow("TargetCam", frame)
+            #cv2.waitKey(1)
         return result, frame
 
 

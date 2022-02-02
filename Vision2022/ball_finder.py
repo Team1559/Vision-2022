@@ -63,13 +63,13 @@ class ball_finder(object):
         output = frame.copy()
         # ensure at least some circles were found
         if circles is not None:
-            print("cirlces" , len(circles))
+            # print("cirlces" , len(circles))
             # convert the (x, y) coordinates and radius of the circles to integers
             circles = np.round(circles[0, :]).astype("int")
             # loop over the (x, y) coordinates and radius of the circles
             ball = None
             maxRadius = 0
-            for (x, y, r) in circles: #AHUDjknSJDA
+            for (x, y, r) in circles:
                 try:
                     if filtered[y][x][2] > 0:
                         if r > maxRadius:
@@ -83,8 +83,8 @@ class ball_finder(object):
                 cv2.circle(output, (ball[0], ball[1]), ball[2], (0, 255, 0), 4)
 
         if self.show:
-            cv2.imshow("Circles", output)
-            cv2.waitKey(1)
+            cv2.imshow("Cargo", output)
+            #cv2.waitKey(1)
         out = output
         return circles, out
         # return rectangles.sort()
@@ -94,11 +94,11 @@ class ball_finder(object):
         thresh = self.preImageProcessing(frame)
 
         if self.show:
-            cv2.imshow("Thresh", thresh)
+            cv2.imshow("BallCam", frame)
             #cv2.waitKey(1)
         targets, self.out = self.findTargets(frame, thresh)
         if self.show:
-            cv2.imshow("Unfiltered", frame)
+            cv2.imshow("Ball Thresh", thresh)
             #cv2.waitKey(1)
         return (False, 10, 10, 0), self.out
 

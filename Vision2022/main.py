@@ -118,14 +118,14 @@ def main():
                 print("Ball--> " + str(ball_result) + elapsed)
 
             if do_ball_finder and do_hoop_finder and hoop_result is not None and ball_result is not None:
-                send_data(hoop_result[0], hoop_result[1], hoop_result[2], hoop_result[3], ball_result[0],
+                send_data(hoop_result[0], hoop_result[1], hoop_result[2], 0, ball_result[0],
                           ball_result[1], ball_result[2], ball_result[3], 0)
 
             elif do_ball_finder and not do_hoop_finder and ball_result is not None:
                 send_data(False, 0, 0, 0, ball_result[0], ball_result[1], ball_result[2], ball_result[3], 0)
 
             elif not do_ball_finder and do_hoop_finder and hoop_result is not None:
-                send_data(hoop_result[0], hoop_result[1], hoop_result[2], hoop_result[3], False, 0, 0, 0, 0)
+                send_data(hoop_result[0], hoop_result[1], hoop_result[2], 0, False, 0, 0, 0, 0)
 
             if do_hoop_finder and do_ball_finder and hoop_result is not None and ball_result is not None:
                 # put both frames side by side
@@ -138,20 +138,20 @@ def main():
                 vis[:h2, w1:w1 + w2, :3] = ball_frame
                 encoded, buffer = cv2.imencode('.jpg', vis.astype('uint8'))
                 # footage_socket.send(buffer)
-                status(1)
+                # status(1)
 
             elif do_ball_finder and not do_hoop_finder and ball_result is not None:
                 encoded, buffer = cv2.imencode('.jpg', ball_frame.astype('uint8'))
                 # footage_socket.send(buffer)
-                status(1)
+                # status(1)
 
             elif not do_ball_finder and do_hoop_finder and hoop_result is not None:
                 encoded, buffer = cv2.imencode('.jpg', hoop_frame.astype('uint8'))
                 # footage_socket.send(buffer)
-                status(1)
+                # status(1)
 
         except KeyboardInterrupt:
-            status(-1)
+            # status(-1)
             time.sleep(0.25)
             cv2.destroyAllWindows()
             print("exiting")
@@ -180,7 +180,7 @@ def status(data):
         laptop_address = ("10.15.59.2", 5554)
     else:
         laptop_address = ("localhost", 5554)
-        s.sendto(bytes(str(data), 'utf-8'), laptop_address)
+        s.sendto(data.encode('utf-8'), laptop_address)
 
 
 if __name__ == "__main__":
@@ -197,7 +197,7 @@ if __name__ == "__main__":
         main()
 
     except KeyboardInterrupt:
-        status(-1)
+        # status(-1)
         time.sleep(0.25)
         cv2.destroyAllWindows()
         print("exiting")
