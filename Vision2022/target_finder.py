@@ -7,7 +7,7 @@ def calculateDistance(centroid_y):
     #
     # uses fov to pixel difference ratio to calculate distance
     #
-    fov = 45  # degrees
+    v_fov = 45  # degrees
     imageHeight = 480  # pixels
     targetPixelY = centroid_y  # pixels
     cameraHeight = 3  # feet
@@ -15,7 +15,7 @@ def calculateDistance(centroid_y):
     angularOffset = 25  # degrees
     heightDifference = targetHeight - cameraHeight  # feet
 
-    theta = fov / imageHeight * targetPixelY + angularOffset
+    theta = v_fov / imageHeight * targetPixelY + angularOffset
     d = heightDifference / np.tan(theta)
 
     return d
@@ -24,13 +24,13 @@ def calculateAngle(centroid_x):
     #
     # uses fov to pixel difference ratio to calculate correction angle
     #
-    fov = 77  # degrees
+    h_fov = 77  # degrees
     imageWidth = 640  # pixels
     targetPixelX = centroid_x  # pixels
 
     pasta = (imageWidth/2 - targetPixelX) 
 
-    theta = fov*pasta/imageWidth
+    theta = h_fov*pasta/imageWidth
 
     return theta
 

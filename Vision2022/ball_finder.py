@@ -17,9 +17,10 @@ class ball_finder(object):
         self.cx = -1
         self.cy = -1
         self.err = -1000
+        self.ball = None
         # NOOOOOOOO BGR, BGR bad
-        blue_low = np.array((105, 75, 60))
-        blue_high = np.array((115, 250, 255))
+        blue_low = np.array((105, 75, 40))
+        blue_high = np.array((121, 250, 255))
         self.hsvl = blue_low
         self.hsvh = blue_high
         self.show = "show" in sys.argv
@@ -47,8 +48,8 @@ class ball_finder(object):
 
         thresh = cv2.inRange(hsv, self.hsvl, self.hsvh)
         # erode and dilate
-        thresh = cv2.erode(thresh, (14, 14))
-        thresh = cv2.dilate(thresh, (14, 14))
+        thresh = cv2.erode(thresh, (9, 9))
+        thresh = cv2.dilate(thresh, (9, 9)) #14
 
         return thresh
 
@@ -68,20 +69,20 @@ class ball_finder(object):
             # convert the (x, y) coordinates and radius of the circles to integers
             circles = np.round(circles[0, :]).astype("int")
             # loop over the (x, y) coordinates and radius of the circles
-            ball = None
+            self.ball = None
             maxRadius = 0
             for (x, y, r) in circles:
                 try:
                     if thresh[y][x] > 0:
                         if r > maxRadius:
-                            ball = (x, y, r)
+                            self.ball = (x, y, r)
                             maxRadius = r   
                 except IndexError:
                     pass
                 #print(np.mean(thresh[max(x - r, 0):min(x + r, self.width), max(y - r, 0):min(y + r, self.height)]))
                 # > 1*3.141519265357962/4
-            if ball is not None:
-                cv2.circle(output, (ball[0], ball[1]), ball[2], (0, 255, 0), 4)
+            if self.ball is not None:
+                cv2.circle(output, (self.ball[0], self.ball[1]), self.ball[2], (0, 255, 0), 4)
 
         if self.show:
             cv2.imshow("Cargo", output)
@@ -103,8 +104,21 @@ class ball_finder(object):
             pass
             # cv2.imshow("Ball Thresh", thresh)
             #cv2.waitKey(1)
-        return (False, 10, 10, 0), self.out
+        #return (False, 10, 10, 0), self.out
+        return (self.ball is not None, -self.calculateAngle(self.ball[0]) if self.ball is not None else 0, 0, 0), self.out
 
+    def calculateAngle(self,targetPixelX):
+        #
+        # uses fov to pixel difference ratio to calculate correction angle
+        #
+        h_fov = 77  # degrees
+        imageWidth = 640  # pixels
+
+        pasta = (imageWidth/2 - targetPixelX) # postive = right/clockwise
+
+        theta = h_fov*pasta/imageWidth
+
+        return theta;
 
 if __name__ == "__main__":
     print("This file is a library please run the correct file to get the output")
