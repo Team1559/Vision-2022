@@ -103,11 +103,11 @@ class ball_finder(object):
         if self.show:
             pass
             # cv2.imshow("Ball Thresh", thresh)
-            # cv2.waitKey(1)
-        # return (False, 10, 10, 0), self.out
-        return ((self.ball is not None, -self.calculateAngle(self.ball[0]) if self.ball is not None else 0, 0, 0),
-                self.out)
 
+            #cv2.waitKey(1)
+        #return (False, 10, 10, 0), self.out
+        return (self.ball is not None, self.calculateAngle(self.ball[0]) if self.ball is not None else 0, 0, 0), self.out
+        
     def calculateAngle(self, targetPixelX):
         #
         # uses fov to pixel difference ratio to calculate correction angle
