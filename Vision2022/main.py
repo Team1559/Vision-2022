@@ -31,7 +31,7 @@ def init(do_hoop=True, do_ball=True):
         subprocess.check_call(["uvcdynctrl", "-s", "Sharpness", "128"])
         subprocess.check_call(["uvcdynctrl", "-s", "Contrast", "128"])
         subprocess.check_call(["uvcdynctrl", "-s", "Exposure, Auto", "2"])
-        subprocess.check_call(["uvcdynctrl", "-s", "Exposure (Absolute)", "2000"])
+        subprocess.check_call(["uvcdynctrl", "-s", "Exposure (Absolute)", "1800"])
 
         print(subprocess.check_output(["uvcdynctrl", "-g", "Brightness"]))
         print(subprocess.check_output(["uvcdynctrl", "-g", "Exposure (Absolute)"]))
