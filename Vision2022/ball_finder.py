@@ -19,8 +19,8 @@ class ball_finder(object):
         self.err = -1000
         self.ball = None
         # NOOOOOOOO BGR, BGR bad
-        blue_low = np.array((105, 75, 40))
-        blue_high = np.array((121, 250, 255))
+        blue_low = np.array((105, 75, 10))
+        blue_high = np.array((128, 250, 255))
         self.hsvl = blue_low
         self.hsvh = blue_high
         self.show = "show" in sys.argv
@@ -95,10 +95,12 @@ class ball_finder(object):
         frame = self.acquireImage(data)
         thresh = self.preImageProcessing(frame)
 
+        cv2.imshow("Thresh", thresh)
+
         if self.show:
             pass
             # cv2.imshow("BallCam", frame)
-            # cv2.waitKey(1)
+            # cv2.waitKey(1)    
         targets, self.out = self.findTargets(frame, thresh)
         if self.show:
             pass
@@ -107,7 +109,7 @@ class ball_finder(object):
             #cv2.waitKey(1)
         #return (False, 10, 10, 0), self.out
         return (self.ball is not None, self.calculateAngle(self.ball[0]) if self.ball is not None else 0, 0, 0), self.out
-        
+
     def calculateAngle(self, targetPixelX):
         #
         # uses fov to pixel difference ratio to calculate correction angle

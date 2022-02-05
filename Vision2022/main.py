@@ -31,7 +31,7 @@ def init(do_hoop=True, do_ball=True):
         subprocess.check_call(["uvcdynctrl", "-s", "Sharpness", "128"])
         subprocess.check_call(["uvcdynctrl", "-s", "Contrast", "128"])
         subprocess.check_call(["uvcdynctrl", "-s", "Exposure, Auto", "2"])
-        subprocess.check_call(["uvcdynctrl", "-s", "Exposure (Absolute)", "1600"])
+        subprocess.check_call(["uvcdynctrl", "-s", "Exposure (Absolute)", "2000"])
 
         print(subprocess.check_output(["uvcdynctrl", "-g", "Brightness"]))
         print(subprocess.check_output(["uvcdynctrl", "-g", "Exposure (Absolute)"]))
@@ -119,8 +119,8 @@ def main():
             elif not is_jetson and do_ball_finder and ball_result is not None:
                 if ball_result[0]:
                     print("Ball--> " + str(ball_result) + elapsed)
-            # if ball_result[0] :
-            #     print("Ball--> " + str(ball_result) + elapsed)
+            if ball_result[0] :
+                print("Ball--> " + str(ball_result) + elapsed)
             if do_ball_finder and do_hoop_finder and hoop_result is not None and ball_result is not None:
                 send_data(hoop_result[0], hoop_result[1], hoop_result[2], 0, ball_result[0],
                           ball_result[1], ball_result[2], ball_result[3], 0)
@@ -178,7 +178,8 @@ def send_data(hoop_found, hoop_x, hoop_y, hoop_angle, ball_found, ball_x,
                                                                 wait_for_other_robot)
     send(data)
     if is_jetson:
-        print(data)
+        pass
+        # print(data)
 
 
 def status(data):
