@@ -96,7 +96,7 @@ def main():
                 start_time = time.time()
                 ball_detector = get_ball(ball_cam_frame.astype('uint8'))
                 end_time = time.time()
-                elapsed = " " + str(round(1000 * (end_time - start_time), 1))
+                elapsedBall = " " + str(round(1000 * (end_time - start_time), 1))
 
                 ball_data = ball_detector
                 ball_result = ball_data[0]
@@ -108,7 +108,10 @@ def main():
                     print("hoop camera error")
                 if hoop_cam_frame is None:
                     hoop_cam_frame = np.zeros(shape=(480, 640, 3))
+                start_time = time.time()
                 hoop_detector = get_hoop(hoop_cam_frame.astype('uint8'))
+                end_time = time.time()
+                elapsedHoop = " " + str(round(1000 * (end_time - start_time), 1))
                 hoop_data = hoop_detector
                 hoop_result = hoop_data[0]
                 hoop_frame = hoop_data[1]
