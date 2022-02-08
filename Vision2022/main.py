@@ -203,7 +203,7 @@ if __name__ == "__main__":
 
         address = ("10.15.59.2", 5801)
 
-        init(do_ball=False, do_hoop=True)
+        init(do_ball=do_ball_finder, do_hoop=do_hoop_finder)
         main()
 
     except KeyboardInterrupt:
