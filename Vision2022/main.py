@@ -25,16 +25,31 @@ def init(do_hoop=True, do_ball=True):
         is_jetson = True
 
     if is_jetson:
-        subprocess.check_call(["uvcdynctrl", "-s", "White Balance Temperature", "4659"])
-        subprocess.check_call(["uvcdynctrl", "-s", "White Balance Temperature, Auto", "0"])
-        subprocess.check_call(["uvcdynctrl", "-s", "Brightness", "128"])
+        # Both
+
         subprocess.check_call(["uvcdynctrl", "-s", "Sharpness", "128"])
         subprocess.check_call(["uvcdynctrl", "-s", "Contrast", "128"])
         subprocess.check_call(["uvcdynctrl", "-s", "Exposure, Auto", "2"])
-        subprocess.check_call(["uvcdynctrl", "-s", "Exposure (Absolute)", "1800"])
 
-        print(subprocess.check_output(["uvcdynctrl", "-g", "Brightness"]))
-        print(subprocess.check_output(["uvcdynctrl", "-g", "Exposure (Absolute)"]))
+
+        # Hoop stuff
+        subprocess.check_call(["uvcdynctrl", "-s", "White Balance Temperature", "6500"])
+        subprocess.check_call(["uvcdynctrl", "-s", "White Balance Temperature, Auto", "0"])
+        subprocess.check_call(["uvcdynctrl", "-s", "Brightness", "1"])
+        subprocess.check_call(["uvcdynctrl", "-s", "Exposure (Absolute)", "5"])
+
+
+        # Ball stuff
+        # subprocess.check_call(["uvcdynctrl", "-s", "White Balance Temperature", "4659"])
+        # subprocess.check_call(["uvcdynctrl", "-s", "White Balance Temperature, Auto", "0"])
+        # subprocess.check_call(["uvcdynctrl", "-s", "Brightness", "128"])
+        # subprocess.check_call(["uvcdynctrl", "-s", "Sharpness", "128"])
+        # subprocess.check_call(["uvcdynctrl", "-s", "Contrast", "128"])
+        # subprocess.check_call(["uvcdynctrl", "-s", "Exposure, Auto", "2"])
+        # subprocess.check_call(["uvcdynctrl", "-s", "Exposure (Absolute)", "1800"])
+
+        # print(subprocess.check_output(["uvcdynctrl", "-g", "Brightness"]))
+        # print(subprocess.check_output(["uvcdynctrl", "-g", "Exposure (Absolute)"]))
 
 
 def get_hoop(hoop_frame):
@@ -119,7 +134,7 @@ def main():
             elif not is_jetson and do_ball_finder and ball_result is not None:
                 if ball_result[0]:
                     print("Ball--> " + str(ball_result) + elapsed)
-            if ball_result[0] :
+            if ball_result and ball_result[0] :
                 print("Ball--> " + str(ball_result) + elapsed)
             if do_ball_finder and do_hoop_finder and hoop_result is not None and ball_result is not None:
                 send_data(hoop_result[0], hoop_result[1], hoop_result[2], 0, ball_result[0],
@@ -201,7 +216,7 @@ if __name__ == "__main__":
 
         address = ("10.15.59.2", 5801)
 
-        init(do_ball=True, do_hoop=False)
+        init(do_ball=False, do_hoop=True)
         main()
 
     except KeyboardInterrupt:

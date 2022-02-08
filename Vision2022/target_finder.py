@@ -4,19 +4,21 @@ import sys
 
 
 def calculateDistance(centroid_y):
+    #import pdb
+    #pdb.set_trace()
     #
     # uses fov to pixel difference ratio to calculate distance
     #
-    v_fov = 45  # degrees
-    imageHeight = 480  # pixels
-    targetPixelY = centroid_y  # pixels
+    v_fov = 45.0  # degrees
+    imageHeight = 480.0  # pixels
+    targetPixelY = imageHeight - centroid_y  # pixels
     cameraHeight = 3  # feet
     targetHeight = 8.67  # feet
-    angularOffset = 25  # degrees
+    angularOffset = 2.5  # degrees
     heightDifference = targetHeight - cameraHeight  # feet
 
     theta = v_fov / imageHeight * targetPixelY + angularOffset
-    d = heightDifference / np.tan(theta)
+    d = heightDifference / np.tan(theta*3.14159265/180)
 
     return d
 
@@ -38,7 +40,7 @@ def calculateAngle(centroid_x):
 def findCentroid(rectangles):
     centers = np.array([r[0] for r in rectangles])
     centroid = np.median(centers, axis=0)
-    # print("centroid : " , centroid)
+    #print("centroid : " , centroid)
     return centroid
 
 
@@ -147,7 +149,7 @@ class target_finder(object):
 
         if len(rectangles) > 0:
             cx, cy = findCentroid(rectangles).astype(np.int32)
-
+            print("Centoid: ", cx, " ", cy)
             self.err = cx - (self.width / 2)
             cv2.circle(frame, (cx, cy), 10, (0, 255, 255), 5)
 
