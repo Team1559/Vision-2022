@@ -116,16 +116,16 @@ def main():
                 hoop_result = hoop_data[0]
                 hoop_frame = hoop_data[1]
 
-            if not is_jetson and do_hoop_finder and do_ball_finder and hoop_result is not None and ball_result is not \
+            if do_hoop_finder and do_ball_finder and hoop_result is not None and ball_result is not \
                     None:
-                print(str(hoop_result) + " <-- Hoop, Ball--> " + str(ball_result) + elapsed)
+                print(str(hoop_result) + elapsedHoop + " <-- Hoop, Ball--> " + str(ball_result) + elapsedBall)
             elif not is_jetson and do_hoop_finder and hoop_result is not None:
-                print(str(hoop_result) + " <-- Hoop" + elapsed)
+                print(str(hoop_result) + elapsedHoop + " <-- Hoop" + elapsedBall)
             elif not is_jetson and do_ball_finder and ball_result is not None:
                 if ball_result[0]:
-                    print("Ball--> " + str(ball_result) + elapsed)
-            if ball_result and ball_result[0] :
-                print("Ball--> " + str(ball_result) + elapsed)
+                    print("Ball--> " + str(ball_result) + elapsedBall)
+            #if ball_result and ball_result[0] :
+            #    print("Ball--> " + str(ball_result) + elapsedBall)
             if do_ball_finder and do_hoop_finder and hoop_result is not None and ball_result is not None:
                 send_data(hoop_result[0], hoop_result[1], hoop_result[2], 0, ball_result[0],
                           ball_result[1], ball_result[2], ball_result[3], 0)
