@@ -9,6 +9,10 @@ import ball_finder
 import target_finder
 import time
 
+CAMERA_PATH = "/dev/v4l/by-path/"
+
+BALL_CAMERA_ID = CAMERA_PATH + "platform-70090000.xusb-usb-0:4.4:1.0-video-index0"
+HOOP_CAMERA_ID = CAMERA_PATH + "platform-70090000.xusb-usb-0:4.3:1.0-video-index0"
 
 def init(do_hoop=True, do_ball=True):
     global is_jetson
@@ -31,13 +35,11 @@ def init(do_hoop=True, do_ball=True):
         subprocess.check_call(["uvcdynctrl", "-s", "Contrast", "128"])
         subprocess.check_call(["uvcdynctrl", "-s", "Exposure, Auto", "2"])
 
-
         # Hoop stuff
         subprocess.check_call(["uvcdynctrl", "-s", "White Balance Temperature", "6500"])
         subprocess.check_call(["uvcdynctrl", "-s", "White Balance Temperature, Auto", "0"])
         subprocess.check_call(["uvcdynctrl", "-s", "Brightness", "1"])
         subprocess.check_call(["uvcdynctrl", "-s", "Exposure (Absolute)", "5"])
-
 
         # Ball stuff
         # subprocess.check_call(["uvcdynctrl", "-s", "White Balance Temperature", "4659"])
@@ -51,45 +53,30 @@ def init(do_hoop=True, do_ball=True):
         # print(subprocess.check_output(["uvcdynctrl", "-g", "Brightness"]))
         # print(subprocess.check_output(["uvcdynctrl", "-g", "Exposure (Absolute)"]))
 
-
 def get_hoop(hoop_frame):
     hoop = target_finder.target_finder()
     hd, hf = hoop.find(hoop_frame)
     return hd, hf
-
-
 def get_ball(ball_frame):
     ball = ball_finder.ball_finder()
     bd, bf = ball.find(ball_frame)
     return bd, bf
 
-
 def main():
     s = socket(AF_INET, SOCK_DGRAM)
-
-    # context = zmq.Context()
-    # footage_socket = context.socket(zmq.PUB)
-    # if is_jetson:
-    #     footage_socket.connect('tcp://10.15.59.5:5555')
-    # else:
-    #     footage_socket.connect('tcp://localhost:5555')
 
     ball_camera = None
     hoop_camera = None
     hoop_frame = np.zeros(shape=(480, 640, 3))
     ball_frame = np.zeros(shape=(480, 640, 3))
 
-    # address = ("169.254.210.151", 5801)
 
-    # dns based address
-    # address = ("roborio-1559-frc.local", 5801)
-    # ip based address 
     if do_hoop_finder:
-        hoop_camera = cv2.VideoCapture(0)  # ID should be 1
+        hoop_camera = cv2.VideoCapture(HOOP_CAMERA_ID)  # ID should be 1
     if do_ball_finder and do_hoop_finder:
-        ball_camera = cv2.VideoCapture(1)  # id should be 0
+        ball_camera = cv2.VideoCapture(BALL_CAMERA_ID)  # id should be 0
     elif not do_hoop_finder:
-        ball_camera = cv2.VideoCapture(0)
+        ball_camera = cv2.VideoCapture(BALL_CAMERA_ID)
 
     # ball_camera.set(cv2.CAP_PROP_EXPOSURE, -1)
     # ball_camera.set(cv2.CAP_PROP_AUTO_EXPOSURE, 1)
