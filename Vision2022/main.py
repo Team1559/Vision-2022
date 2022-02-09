@@ -123,6 +123,7 @@ def main():
             #stream images depending on result, also should change
             if hoop_result is not None and ball_result is not None:
                 vis = np.vstack((cv2.resize(hoop_frame, None, fx=0.25, fy=0.25), cv2.resize(ball_frame, None, fx=0.25, fy=0.25)))
+                cv2.imshow("DriverStation", vis)
                 encoded, buffer = cv2.imencode('.jpg', vis.astype('uint8'))
                 # footage_socket.send(buffer)
                 # status(1)
