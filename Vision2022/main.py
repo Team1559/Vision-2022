@@ -30,25 +30,44 @@ def init():
         is_jetson = True
 
     if is_jetson:
-        # Both
+        # brightness not set for ball camera?
+        # CAP_PROP_SATURATION not set for either camera?
+        ball_camera_props = {
+            "CAP_PROP_EXPOSURE": 1800,
+            "CAP_PROP_WB_TEMPERATURE": 4659
+        }
+        both = {
+            "CAP_PROP_SHARPNESS": 128,
+            "CAP_PROP_CONTRAST": 128,
+            "CAP_PROP_AUTO_EXPOSURE": 2,
+            "CAP_PROP_AUTO_WB": 0
+        }
+        hoop_camera_props = {
+            "CAP_PROP_EXPOSURE": 5
+            "CAP_PROP_WB_TEMPERATURE": 6500
+            "CAP_PROP_BRIGHTNESS": 1
+        }
+        for prop, value in both.items():
+            ball_camera.set(prop, value)
+            hoop_camera.set(prop, value)
+        for prop, value in ball_camera_props.items(): # may need to be adjusted for python2
+            ball_camera.set(prop, value)
+        for prop, value in hoop_camera_props.items():
+            hoop_camera.set(prop, value)
 
-        subprocess.check_call(["uvcdynctrl", "-s", "Sharpness", "128"])
-        subprocess.check_call(["uvcdynctrl", "-s", "Contrast", "128"])
-        subprocess.check_call(["uvcdynctrl", "-s", "Exposure, Auto", "2"])
-
-        # Hoop stuff
-        subprocess.check_call(["uvcdynctrl", "-s", "White Balance Temperature", "6500"])
-        subprocess.check_call(["uvcdynctrl", "-s", "White Balance Temperature, Auto", "0"])
-        subprocess.check_call(["uvcdynctrl", "-s", "Brightness", "1"])
-        subprocess.check_call(["uvcdynctrl", "-s", "Exposure (Absolute)", "5"])
-
-        # Ball stuff
-        # subprocess.check_call(["uvcdynctrl", "-s", "White Balance Temperature", "4659"])
-        # subprocess.check_call(["uvcdynctrl", "-s", "White Balance Temperature, Auto", "0"])
-        # subprocess.check_call(["uvcdynctrl", "-s", "Brightness", "128"])
+        # Both cameras
         # subprocess.check_call(["uvcdynctrl", "-s", "Sharpness", "128"])
         # subprocess.check_call(["uvcdynctrl", "-s", "Contrast", "128"])
         # subprocess.check_call(["uvcdynctrl", "-s", "Exposure, Auto", "2"])
+        # subprocess.check_call(["uvcdynctrl", "-s", "White Balance Temperature, Auto", "0"])
+
+        # Hoop stuff
+        # subprocess.check_call(["uvcdynctrl", "-s", "White Balance Temperature", "6500"])
+        # subprocess.check_call(["uvcdynctrl", "-s", "Brightness", "1"])
+        # subprocess.check_call(["uvcdynctrl", "-s", "Exposure (Absolute)", "5"])
+
+        # Ball stuff
+        # subprocess.check_call(["uvcdynctrl", "-s", "White Balance Temperature", "4659"])
         # subprocess.check_call(["uvcdynctrl", "-s", "Exposure (Absolute)", "1800"])
 
         # print(subprocess.check_output(["uvcdynctrl", "-g", "Brightness"]))
@@ -77,9 +96,6 @@ def main():
         print("Hoop camera not found")
     hoop_frame = np.zeros(shape=(480, 640, 3))
     ball_frame = np.zeros(shape=(480, 640, 3))
-
-    # ball_camera.set(cv2.CAP_PROP_EXPOSURE, -1)
-    # ball_camera.set(cv2.CAP_PROP_AUTO_EXPOSURE, 1)
 
     while True:
         try:
