@@ -43,8 +43,8 @@ def init():
             "CAP_PROP_AUTO_WB": 0
         }
         hoop_camera_props = {
-            "CAP_PROP_EXPOSURE": 5
-            "CAP_PROP_WB_TEMPERATURE": 6500
+            "CAP_PROP_EXPOSURE": 5,
+            "CAP_PROP_WB_TEMPERATURE": 6500,
             "CAP_PROP_BRIGHTNESS": 1
         }
         for prop, value in both.items():
