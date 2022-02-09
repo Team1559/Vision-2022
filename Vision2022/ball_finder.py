@@ -113,8 +113,8 @@ class ball_finder(object):
         frame = self.acquireImage(data)
         thresh = self.preImageProcessing(frame)
 
-        if self.show:
-            cv2.imshow("Thresh", thresh)
+        #if self.show:
+        #    cv2.imshow("Thresh", thresh)
 
         if self.show:
             pass
