@@ -8,7 +8,7 @@ import numpy as np
 import ball_finder
 import target_finder
 import time
-
+import sys
 
 CAMERA_PATH = "/dev/v4l/by-path/"
 
@@ -18,6 +18,8 @@ HOOP_CAMERA_ID = CAMERA_PATH + "platform-70090000.xusb-usb-0:4.3:1.0-video-index
 s = socket(AF_INET, SOCK_DGRAM)
 
 address = ("10.15.59.2", 5801)
+
+do_ball_finder = do_hoop_finder = True
 
 def init():
     global is_jetson
@@ -62,6 +64,7 @@ def get_ball(ball_frame):
     return bd, bf
 
 def main():
+
     ball_camera = None
     try:
         ball_camera = cv2.VideoCapture(BALL_CAMERA_ID)
@@ -70,6 +73,8 @@ def main():
     hoop_camera = None
     try:
         hoop_camera = cv2.VideoCapture(HOOP_CAMERA_ID)
+    except:
+        print("Hoop camera not found")
     hoop_frame = np.zeros(shape=(480, 640, 3))
     ball_frame = np.zeros(shape=(480, 640, 3))
 
@@ -111,7 +116,8 @@ def main():
             # Print and send depending on which results we got, probably should change
             if hoop_result is not None and ball_result is not None:
                 print(str(hoop_result) + elapsedHoop + " <-- Hoop, Ball--> " + str(ball_result) + elapsedBall)
-                send_data(*hoop_result[:3], 0, *ball_result[:4], 0)
+                send_data(hoop_result[0], hoop_result[1], hoop_result[2], 0, ball_result[0], ball_result[1], ball_result[2], ball_result[3], 0)
+                # Python 3:send_data(*hoop_result[:3], 0, *ball_result[:4], 0)
             elif ball_result is not None:
                 if ball_result[0]:
                     print("Ball--> " + str(ball_result) + elapsedBall)
@@ -122,8 +128,18 @@ def main():
 
             #stream images depending on result, also should change
             if hoop_result is not None and ball_result is not None:
+                imageHeight = 480
+                imageWidth = 640
+                THICKNESS = 4
+                HOOP_COLOR = (255, 255, 0)
+                BALL_COLOR = (0, 215, 255)
+                cv2.line(hoop_frame, ((imageWidth/2)-20, imageHeight/2), (imageWidth/2+20, imageHeight/2), HOOP_COLOR, THICKNESS)
+                cv2.line(hoop_frame, ((imageWidth/2), imageHeight/2-20), (imageWidth/2, imageHeight/2+20), HOOP_COLOR, THICKNESS)
+                cv2.line(ball_frame, ((imageWidth/2)-20, imageHeight/2), (imageWidth/2+20, imageHeight/2), BALL_COLOR, THICKNESS)
+                cv2.line(ball_frame, ((imageWidth/2), imageHeight/2-20), (imageWidth/2, imageHeight/2+20), BALL_COLOR, THICKNESS)
                 vis = np.vstack((cv2.resize(hoop_frame, None, fx=0.25, fy=0.25), cv2.resize(ball_frame, None, fx=0.25, fy=0.25)))
-                cv2.imshow("DriverStation", vis)
+                if "show" in sys.argv:
+                    cv2.imshow("DriverStation", np.vstack((hoop_frame, ball_frame)))
                 encoded, buffer = cv2.imencode('.jpg', vis.astype('uint8'))
                 # footage_socket.send(buffer)
                 # status(1)

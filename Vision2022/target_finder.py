@@ -135,7 +135,7 @@ class target_finder(object):
         frame = self.acquireImage(data)
         thresh = self.preImageProcessing(frame)
 
-        if self.show:
+        # if self.show:
             #cv2.imshow("Targets", thresh)
             # cv2.waitKey(1)
 
@@ -160,7 +160,7 @@ class target_finder(object):
             result = (True, distance, heading)
         else:
             self.err = -1000
-        if self.show:
+        # if self.show:
             #cv2.imshow("TargetCam", frame)
             #cv2.waitKey(1)
         return result, frame

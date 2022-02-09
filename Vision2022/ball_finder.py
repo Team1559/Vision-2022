@@ -37,7 +37,6 @@ class ball_finder(object):
         self.minarea = 10  # 100
 
     def acquireImage(self, data):
-
         frame = data
         self.height, self.width = frame.shape[:2]
         self.out = frame
