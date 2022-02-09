@@ -9,6 +9,7 @@ import ball_finder
 import target_finder
 import time
 
+
 CAMERA_PATH = "/dev/v4l/by-path/"
 
 BALL_CAMERA_ID = CAMERA_PATH + "platform-70090000.xusb-usb-0:4.4:1.0-video-index0"
@@ -137,14 +138,11 @@ def main():
                 send_data(hoop_result[0], hoop_result[1], hoop_result[2], 0, False, 0, 0, 0, 0)
 
             if do_hoop_finder and do_ball_finder and hoop_result is not None and ball_result is not None:
-                # put both frames side by side
-                h1, w1 = hoop_frame.shape[:2]
-                h2, w2 = ball_frame.shape[:2]
-                # create empty matrix
-                vis = np.zeros((max(h1, h2), w1 + w2, 3), np.uint8)
-                # combine 2 images
-                vis[:h1, :w1, :3] = hoop_frame
-                vis[:h2, w1:w1 + w2, :3] = ball_frame
+                new_Hoop_Frame = cv2.resize(hoop_frame, None, fx = 0.25, fy = 0.25)
+                new_Ball_Frame = cv2.resize(ball_frame, None, fx = 0.25, fy = 0.25)
+
+                vis = np.vstack((new_Hoop_Frame, new_Ball_Frame))
+
                 encoded, buffer = cv2.imencode('.jpg', vis.astype('uint8'))
                 # footage_socket.send(buffer)
                 # status(1)

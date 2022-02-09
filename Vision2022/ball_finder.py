@@ -103,8 +103,8 @@ class ball_finder(object):
         if self.ball is not None:
             cv2.circle(output, (self.ball[0], self.ball[1]), self.ball[2], (0, 255, 0), 4)
 
-        if self.show:
-            cv2.imshow("Cargo", output)
+        #if self.show:
+        cv2.imshow("Cargo", output)
             # cv2.waitKey(1)
         return output
         # return rectangles.sort()
