@@ -15,8 +15,8 @@ def main():
                 print("exiting because of camera error")
                 break
             cv2.imshow("Source", frame)
-            frame = cv2.resize(frame, (160, 120))
-            encoded, buffer = cv2.imencode('.jpg', frame)
+            frame = cv2.resize(frame, (320, 240))
+            encoded, buffer = cv2.imencode('.jpg', frame, [cv2.IMWRITE_JPEG_QUALITY, 50])
             print(len(buffer))
             s.sendto(buffer, destination)
             cv2.waitKey(1)
