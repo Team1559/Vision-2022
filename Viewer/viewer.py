@@ -1,30 +1,20 @@
 import cv2
-import zmq
 import numpy as np
 from socket import *
 
 
-def main(exit_when_stream_dies=True):
-    context = zmq.Context()
+def main():
     s = socket(AF_INET, SOCK_DGRAM)
-    s.bind(('localhost', 5554))
-    footage_socket = context.socket(zmq.SUB)
-    footage_socket.bind('tcp://*:5555')
-    footage_socket.setsockopt_string(zmq.SUBSCRIBE, np.compat.unicode(''))
+    s.bind(('', 5800))
 
     while True:
         try:
-
-            data = (s.recv(1024).decode('utf8'))
-            if data != '1' and exit_when_stream_dies:
-                print("exiting cuz the stream died")
-                leave()
-            old_data = data
-            frame = footage_socket.recv()
-            npimg = np.frombuffer(frame, dtype=np.uint8)
-            # npimg = npimg.reshape(480,640,3)
-            source = cv2.imdecode(npimg, 1)
-            cv2.imshow("Stream", source)
+            data = s.recv(32768)
+            print(len(data))
+            npimg = np.frombuffer(data, dtype=np.uint8)
+            frame = cv2.imdecode(npimg, 1)
+            frame = cv2.resize(frame, (640, 480), interpolation=cv2.INTER_LINEAR )
+            cv2.imshow("Stream", frame)
             cv2.waitKey(1)
 
         except KeyboardInterrupt:
@@ -38,4 +28,4 @@ def leave():
 
 
 if __name__ == "__main__":
-    main(exit_when_stream_dies=True)
+    main()
