@@ -19,11 +19,14 @@ s = socket(AF_INET, SOCK_DGRAM)
 
 address = ("10.15.59.2", 5801)
 
+
 do_ball_finder = do_hoop_finder = True
 
 def init():
     global is_jetson
     global cpuArch
+    global ball_camera
+    global hoop_camera
     is_jetson = False
     cpuArch = platform.uname()[4]
     if cpuArch != "x86_64" and cpuArch != "AMD64":
@@ -32,25 +35,39 @@ def init():
     if is_jetson:
         # brightness not set for ball camera?
         # CAP_PROP_SATURATION not set for either camera?
+        ball_camera = None
+        try:
+            ball_camera = cv2.VideoCapture(BALL_CAMERA_ID)
+        except:
+            print("Ball camera not found")
+        hoop_camera = None
+        try:
+            hoop_camera = cv2.VideoCapture(HOOP_CAMERA_ID)
+        except:
+            print("Hoop camera not found")
+
         ball_camera_props = {
-            "CAP_PROP_EXPOSURE": 1800,
-            "CAP_PROP_WB_TEMPERATURE": 4659
+            cv2.CAP_PROP_EXPOSURE: 1800,
+            cv2.CAP_PROP_TEMPERATURE: 4659
         }
         both = {
-            "CAP_PROP_SHARPNESS": 128,
-            "CAP_PROP_CONTRAST": 128,
-            "CAP_PROP_AUTO_EXPOSURE": 2,
-            "CAP_PROP_AUTO_WB": 0
+            # cv2.CAP_PROP_SHARPNESS: 128,
+            cv2.CAP_PROP_CONTRAST: 128,
+            cv2.CAP_PROP_AUTO_EXPOSURE: 2,
+            44: 0
+            # cv2.CAP_PROP_AUTO_WB: 0
         }
+        # 44
+        # 23
         hoop_camera_props = {
-            "CAP_PROP_EXPOSURE": 5,
-            "CAP_PROP_WB_TEMPERATURE": 6500,
-            "CAP_PROP_BRIGHTNESS": 1
+            cv2.CAP_PROP_EXPOSURE: 5,
+            cv2.CAP_PROP_TEMPERATURE: 6500,
+            cv2.CAP_PROP_BRIGHTNESS: 1
         }
         for prop, value in both.items():
             ball_camera.set(prop, value)
             hoop_camera.set(prop, value)
-        for prop, value in ball_camera_props.items(): # may need to be adjusted for python2
+        for prop, value in ball_camera_props.items():
             ball_camera.set(prop, value)
         for prop, value in hoop_camera_props.items():
             hoop_camera.set(prop, value)
@@ -67,8 +84,8 @@ def init():
         # subprocess.check_call(["uvcdynctrl", "-s", "Exposure (Absolute)", "5"])
 
         # Ball stuff
-        # subprocess.check_call(["uvcdynctrl", "-s", "White Balance Temperature", "4659"])
-        # subprocess.check_call(["uvcdynctrl", "-s", "Exposure (Absolute)", "1800"])
+        subprocess.check_call(["uvcdynctrl", "-d", "video1", "-s", "White Balance Temperature", "4659"])
+        subprocess.check_call(["uvcdynctrl", "-d", "video1", "-s", "Exposure (Absolute)", "1800"])
 
         # print(subprocess.check_output(["uvcdynctrl", "-g", "Brightness"]))
         # print(subprocess.check_output(["uvcdynctrl", "-g", "Exposure (Absolute)"]))
@@ -83,17 +100,8 @@ def get_ball(ball_frame):
     return bd, bf
 
 def main():
-
-    ball_camera = None
-    try:
-        ball_camera = cv2.VideoCapture(BALL_CAMERA_ID)
-    except:
-        print("Ball camera not found")
-    hoop_camera = None
-    try:
-        hoop_camera = cv2.VideoCapture(HOOP_CAMERA_ID)
-    except:
-        print("Hoop camera not found")
+    global ball_camera
+    global hoop_camera
     hoop_frame = np.zeros(shape=(480, 640, 3))
     ball_frame = np.zeros(shape=(480, 640, 3))
 
@@ -143,34 +151,23 @@ def main():
                 send_data(hoop_result[0], hoop_result[1], hoop_result[2], 0, False, 0, 0, 0, 0)
 
             #stream images depending on result, also should change
-            if hoop_result is not None and ball_result is not None:
-                imageHeight = 480
-                imageWidth = 640
-                THICKNESS = 4
-                HOOP_COLOR = (255, 255, 0)
-                BALL_COLOR = (0, 215, 255)
-                cv2.line(hoop_frame, ((imageWidth/2)-20, imageHeight/2), (imageWidth/2+20, imageHeight/2), HOOP_COLOR, THICKNESS)
-                cv2.line(hoop_frame, ((imageWidth/2), imageHeight/2-20), (imageWidth/2, imageHeight/2+20), HOOP_COLOR, THICKNESS)
-                cv2.line(ball_frame, ((imageWidth/2)-20, imageHeight/2), (imageWidth/2+20, imageHeight/2), BALL_COLOR, THICKNESS)
-                cv2.line(ball_frame, ((imageWidth/2), imageHeight/2-20), (imageWidth/2, imageHeight/2+20), BALL_COLOR, THICKNESS)
-                vis = np.vstack((cv2.resize(hoop_frame, None, fx=0.25, fy=0.25), cv2.resize(ball_frame, None, fx=0.25, fy=0.25)))
-                if "show" in sys.argv:
-                    cv2.imshow("DriverStation", np.vstack((hoop_frame, ball_frame)))
-                encoded, buffer = cv2.imencode('.jpg', vis.astype('uint8'))
-                # footage_socket.send(buffer)
-                # status(1)
-            elif ball_result is not None:
-                encoded, buffer = cv2.imencode('.jpg', ball_frame.astype('uint8'))
-                # footage_socket.send(buffer)
-                # status(1)
-            elif hoop_result is not None:
-                encoded, buffer = cv2.imencode('.jpg', hoop_frame.astype('uint8'))
-                # footage_socket.send(buffer)
-                # status(1)
+            imageHeight = 480
+            imageWidth = 640
+            THICKNESS = 4
+            HOOP_COLOR = (255, 255, 0)
+            BALL_COLOR = (0, 215, 255)
+            cv2.line(hoop_frame, ((imageWidth/2)-20, imageHeight/2), (imageWidth/2+20, imageHeight/2), HOOP_COLOR, THICKNESS)
+            cv2.line(hoop_frame, ((imageWidth/2), imageHeight/2-20), (imageWidth/2, imageHeight/2+20), HOOP_COLOR, THICKNESS)
+            cv2.line(ball_frame, ((imageWidth/2)-20, imageHeight/2), (imageWidth/2+20, imageHeight/2), BALL_COLOR, THICKNESS)
+            cv2.line(ball_frame, ((imageWidth/2), imageHeight/2-20), (imageWidth/2, imageHeight/2+20), BALL_COLOR, THICKNESS)
+            vis = np.vstack((cv2.resize(hoop_frame, None, fx=0.5, fy=0.5), cv2.resize(ball_frame, None, fx=0.5, fy=0.5)))
+            if "show" in sys.argv:
+                cv2.imshow("DriverStation", np.vstack((hoop_frame, ball_frame)))
+            encoded, buffer = cv2.imencode('.jpg', vis, [cv2.IMWRITE_JPEG_QUALITY, 20])
+            s.sendto(buffer, ("10.15.59.46", 1180))
 
             cv2.waitKey(1)
         except KeyboardInterrupt:
-            # status(-1)
             time.sleep(0.25)
             cv2.destroyAllWindows()
             print("exiting")
@@ -183,12 +180,6 @@ def send(data):
 def send_data(hoop_found, hoop_x, hoop_y, hoop_angle, ball_found, ball_x, ball_y, ball_angle, wait_for_other_robot):
     data = '%3.1f %3.1f %3.1f %3.1f %3.1f %3.1f %d %d %d \n' % (hoop_x, hoop_y, hoop_angle, ball_x, ball_y, ball_angle, 1 if ball_found else 0, 1 if hoop_found else 0, wait_for_other_robot)
     send(data)
-def status(data): #What does this do?
-    if is_jetson:
-        laptop_address = ("10.15.59.2", 5554)
-    else:
-        laptop_address = ("localhost", 5554)
-        s.sendto(data.encode('utf-8'), laptop_address)
 
 
 if __name__ == "__main__":
