@@ -13,7 +13,7 @@ def main():
             print(len(data))
             npimg = np.frombuffer(data, dtype=np.uint8)
             frame = cv2.imdecode(npimg, 1)
-            frame = cv2.resize(frame, (640, 2*480), interpolation=cv2.INTER_LINEAR )
+            frame = cv2.resize(frame, (640, 900), interpolation=cv2.INTER_LINEAR )
             cv2.imshow("Stream", frame)
             cv2.waitKey(1)
 
