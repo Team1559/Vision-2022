@@ -19,8 +19,8 @@ s = socket(AF_INET, SOCK_DGRAM)
 
 address = ("10.15.59.2", 5801)
 
-
 do_ball_finder = do_hoop_finder = True
+
 
 def init():
     global is_jetson
@@ -90,14 +90,18 @@ def init():
         # print(subprocess.check_output(["uvcdynctrl", "-g", "Brightness"]))
         # print(subprocess.check_output(["uvcdynctrl", "-g", "Exposure (Absolute)"]))
 
+
 def get_hoop(hoop_frame):
     hoop = target_finder.target_finder()
     hd, hf = hoop.find(hoop_frame)
     return hd, hf
+
+
 def get_ball(ball_frame):
     ball = ball_finder.ball_finder()
     bd, bf = ball.find(ball_frame)
     return bd, bf
+
 
 def main():
     global ball_camera
@@ -111,7 +115,7 @@ def main():
             ball_result = None
             elapsed = ""
 
-            if do_ball_finder: # find ball
+            if do_ball_finder:  # find ball
                 ball_cam_status, ball_cam_frame = ball_camera.read()
                 if not ball_cam_status:
                     print("ball camera error")
@@ -124,7 +128,7 @@ def main():
 
                 ball_result, ball_frame = ball_data
 
-            if do_hoop_finder: # find hoop
+            if do_hoop_finder:  # find hoop
                 hoop_cam_status, hoop_cam_frame = hoop_camera.read()
                 if not hoop_cam_status:
                     print("hoop camera error")
@@ -140,7 +144,8 @@ def main():
             # Print and send depending on which results we got, probably should change
             if hoop_result is not None and ball_result is not None:
                 print(str(hoop_result) + elapsedHoop + " <-- Hoop, Ball--> " + str(ball_result) + elapsedBall)
-                send_data(hoop_result[0], hoop_result[1], hoop_result[2], 0, ball_result[0], ball_result[1], ball_result[2], ball_result[3], 0)
+                send_data(hoop_result[0], hoop_result[1], hoop_result[2], 0, ball_result[0], ball_result[1],
+                          ball_result[2], ball_result[3], 0)
                 # Python 3:send_data(*hoop_result[:3], 0, *ball_result[:4], 0)
             elif ball_result is not None:
                 if ball_result[0]:
@@ -150,17 +155,22 @@ def main():
                 print(str(hoop_result) + elapsedHoop + " <-- Hoop")
                 send_data(hoop_result[0], hoop_result[1], hoop_result[2], 0, False, 0, 0, 0, 0)
 
-            #stream images depending on result, also should change
+            # stream images depending on result, also should change
             imageHeight = 480
             imageWidth = 640
             THICKNESS = 4
             HOOP_COLOR = (255, 255, 0)
             BALL_COLOR = (0, 215, 255)
-            cv2.line(hoop_frame, ((imageWidth/2)-20, imageHeight/2), (imageWidth/2+20, imageHeight/2), HOOP_COLOR, THICKNESS)
-            cv2.line(hoop_frame, ((imageWidth/2), imageHeight/2-20), (imageWidth/2, imageHeight/2+20), HOOP_COLOR, THICKNESS)
-            cv2.line(ball_frame, ((imageWidth/2)-20, imageHeight/2), (imageWidth/2+20, imageHeight/2), BALL_COLOR, THICKNESS)
-            cv2.line(ball_frame, ((imageWidth/2), imageHeight/2-20), (imageWidth/2, imageHeight/2+20), BALL_COLOR, THICKNESS)
-            vis = np.vstack((cv2.resize(hoop_frame, None, fx=0.5, fy=0.5), cv2.resize(ball_frame, None, fx=0.5, fy=0.5)))
+            cv2.line(hoop_frame, ((imageWidth / 2) - 20, imageHeight / 2), (imageWidth / 2 + 20, imageHeight / 2),
+                     HOOP_COLOR, THICKNESS)
+            cv2.line(hoop_frame, ((imageWidth / 2), imageHeight / 2 - 20), (imageWidth / 2, imageHeight / 2 + 20),
+                     HOOP_COLOR, THICKNESS)
+            cv2.line(ball_frame, ((imageWidth / 2) - 20, imageHeight / 2), (imageWidth / 2 + 20, imageHeight / 2),
+                     BALL_COLOR, THICKNESS)
+            cv2.line(ball_frame, ((imageWidth / 2), imageHeight / 2 - 20), (imageWidth / 2, imageHeight / 2 + 20),
+                     BALL_COLOR, THICKNESS)
+            vis = np.vstack(
+                (cv2.resize(hoop_frame, None, fx=0.5, fy=0.5), cv2.resize(ball_frame, None, fx=0.5, fy=0.5)))
             if "show" in sys.argv:
                 cv2.imshow("DriverStation", np.vstack((hoop_frame, ball_frame)))
             encoded, buffer = cv2.imencode('.jpg', vis, [cv2.IMWRITE_JPEG_QUALITY, 20])
@@ -177,8 +187,12 @@ def main():
 # Data sending stuff
 def send(data):
     s.sendto(data.encode('utf-8'), address)
+
+
 def send_data(hoop_found, hoop_x, hoop_y, hoop_angle, ball_found, ball_x, ball_y, ball_angle, wait_for_other_robot):
-    data = '%3.1f %3.1f %3.1f %3.1f %3.1f %3.1f %d %d %d \n' % (hoop_x, hoop_y, hoop_angle, ball_x, ball_y, ball_angle, 1 if ball_found else 0, 1 if hoop_found else 0, wait_for_other_robot)
+    data = '%3.1f %3.1f %3.1f %3.1f %3.1f %3.1f %d %d %d \n' % (
+    hoop_x, hoop_y, hoop_angle, ball_x, ball_y, ball_angle, 1 if ball_found else 0, 1 if hoop_found else 0,
+    wait_for_other_robot)
     send(data)
 
 

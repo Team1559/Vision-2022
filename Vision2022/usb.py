@@ -11,10 +11,11 @@ class USBCamera(object):
 
         Gst.init(None)
 
-        # for usb
-        # OLD PATH
-        # path = "v4l2src ! video/x-raw, height=%d, width=%d,format=(string)BGR ! appsink name=sink%d" %(height,width,index)
-        path = "v4l2src ! video/x-raw, width=800,height=448,framerate=20/1 ! tee name=t t. ! queue ! videoconvert ! video/x-raw, format=(string)BGR ! appsink name=sink1 t. ! queue ! nvvidconv ! nvjpegenc ! rtpjpegpay ! udpsink host=10.15.59.46 port=5802"
+        # for usb OLD PATH path = "v4l2src ! video/x-raw, height=%d, width=%d,format=(string)BGR ! appsink
+        # name=sink%d" %(height,width,index)
+        path = "v4l2src ! video/x-raw, width=800,height=448,framerate=20/1 ! tee name=t t. ! queue ! videoconvert ! " \
+               "video/x-raw, format=(string)BGR ! appsink name=sink1 t. ! queue ! nvvidconv ! nvjpegenc ! rtpjpegpay " \
+               "! udpsink host=10.15.59.46 port=5802 "
 
         print(path)
         self.pipe = Gst.parse_launch(path)
@@ -23,8 +24,8 @@ class USBCamera(object):
         self.width = width
         self.height = height
 
-        # for CSI
-        # path = "nvcamerasrc device=/dev/video0 ! video/x-raw-yuv,width=720,height=480,framerate=20/1 ! appsink name=sink"+str(index)
+        # for CSI path = "nvcamerasrc device=/dev/video0 ! video/x-raw-yuv,width=720,height=480,framerate=20/1 !
+        # appsink name=sink"+str(index)
 
         # self.pipe = Gst.parse_launch(path)
         self.pipe.set_state(Gst.State.PLAYING)
@@ -38,7 +39,7 @@ class USBCamera(object):
 
         self.index = index
 
-        ##Use this when gstreamer doesnt work##
+        # Use this when gstreamer doesnt work##
         # self.cap = cv2.VideoCapture(index)
 
         self.frame = np.zeros((width, height, 3), np.uint8)

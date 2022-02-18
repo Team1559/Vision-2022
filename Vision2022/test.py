@@ -1,7 +1,7 @@
 import numpy as np
 import cv2
 
-captureDevice = cv2.VideoCapture(0) #captureDevice = camera
+captureDevice = cv2.VideoCapture(0)  # captureDevice = camera
 
 while True:
     ret, frame = captureDevice.read()

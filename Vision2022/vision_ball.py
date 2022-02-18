@@ -8,7 +8,6 @@ from Vision2022 import ball_finder
 
 
 def main():
-
     is_jetson = False
     cpuArch = platform.uname()[4]
     if cpuArch != "x86_64" and cpuArch != "AMD64":
@@ -38,10 +37,10 @@ def main():
 
     if is_jetson:
         pass
-        #subprocess.check_call(["uvcdynctrl", "-s", "White Balance Temperature, Auto", "0"])
-        #subprocess.check_call(["uvcdynctrl", "-s", "Brightness", "30"])
-        #subprocess.check_call(["uvcdynctrl", "-s", "Exposure, Auto", "1"])
-        #subprocess.check_call(["uvcdynctrl", "-s", "Exposure (Absolute)", "5"])
+        # subprocess.check_call(["uvcdynctrl", "-s", "White Balance Temperature, Auto", "0"])
+        # subprocess.check_call(["uvcdynctrl", "-s", "Brightness", "30"])
+        # subprocess.check_call(["uvcdynctrl", "-s", "Exposure, Auto", "1"])
+        # subprocess.check_call(["uvcdynctrl", "-s", "Exposure (Absolute)", "5"])
     if is_jetson:
         camera = cv2.VideoCapture(1)
     else:

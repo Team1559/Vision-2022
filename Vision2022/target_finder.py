@@ -4,8 +4,8 @@ import sys
 
 
 def calculateDistance(centroid_y):
-    #import pdb
-    #pdb.set_trace()
+    # import pdb
+    # pdb.set_trace()
     #
     # uses fov to pixel difference ratio to calculate distance
     #
@@ -18,9 +18,10 @@ def calculateDistance(centroid_y):
     heightDifference = targetHeight - cameraHeight  # feet
 
     theta = v_fov / imageHeight * targetPixelY + angularOffset
-    d = heightDifference / np.tan(theta*3.14159265/180)
+    d = heightDifference / np.tan(theta * 3.14159265 / 180)
 
     return d
+
 
 def calculateAngle(centroid_x):
     #
@@ -30,9 +31,9 @@ def calculateAngle(centroid_x):
     imageWidth = 640  # pixels
     targetPixelX = centroid_x  # pixels
 
-    pasta = (imageWidth/2 - targetPixelX) 
+    pasta = (imageWidth / 2 - targetPixelX)
 
-    theta = h_fov*pasta/imageWidth
+    theta = h_fov * pasta / imageWidth
 
     return theta
 
@@ -40,7 +41,7 @@ def calculateAngle(centroid_x):
 def findCentroid(rectangles):
     centers = np.array([r[0] for r in rectangles])
     centroid = np.median(centers, axis=0)
-    #print("centroid : " , centroid)
+    # print("centroid : " , centroid)
     return centroid
 
 
@@ -108,7 +109,7 @@ class target_finder(object):
     def findTargets(self, thresh):
         # find some contours
         # im2 is useless and used as a filler value
-        _ ,contours, hierarchy = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        _, contours, hierarchy = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
         # grab both min area rectangles
 
@@ -136,8 +137,8 @@ class target_finder(object):
         thresh = self.preImageProcessing(frame)
 
         # if self.show:
-            #cv2.imshow("Targets", thresh)
-            # cv2.waitKey(1)
+        # cv2.imshow("Targets", thresh)
+        # cv2.waitKey(1)
 
         targets = self.findTargets(thresh)
         rectangles = targetRectangles(targets)
@@ -161,8 +162,8 @@ class target_finder(object):
         else:
             self.err = -1000
         # if self.show:
-            #cv2.imshow("TargetCam", frame)
-            #cv2.waitKey(1)
+        # cv2.imshow("TargetCam", frame)
+        # cv2.waitKey(1)
         return result, frame
 
 
