@@ -18,11 +18,11 @@ class ball_finder(object):
         self.cy = -1
         self.err = -1000
         self.ball = None
-        self.team = "blue"
+        self.team = "red"
         # NOOOOOOOO BGR, BGR bad
-        red_low = np.array((80, 100, 45))
+        red_low = np.array((90, 130, 45))
         red_high = np.array((100, 255, 255))
-        blue_low = np.array((105, 0, 20))
+        blue_low = np.array((105, 100, 0))
         blue_high = np.array((121, 255, 255))
         self.hsvl = blue_low if self.team == "blue" else red_low
         self.hsvh = blue_high if self.team == "blue" else red_high
@@ -49,12 +49,14 @@ class ball_finder(object):
             hsv[:,:,0] += 90
             hsv[:,:,0] %= 180
         # blur me
-        hsv = cv2.blur(hsv, (5, 5))
+        # hsv = cv2.medianBlur(hsv, 5)
+        # hsv =  cv2.blur(hsv, (5,5))
 
         thresh = cv2.inRange(hsv, self.hsvl, self.hsvh)
+        thresh = cv2.medianBlur(thresh, 9)
         # erode and dilate
-        thresh = cv2.erode(thresh, (9, 9))
-        thresh = cv2.dilate(thresh, (9, 9))  # 14
+        # thresh = cv2.erode(thresh, (14, 14))
+        # thresh = cv2.dilate(thresh, (14, 14))  # 14
 
         return thresh
 
@@ -126,7 +128,7 @@ class ball_finder(object):
 
             #cv2.waitKey(1)
         #return (False, 10, 10, 0), self.out
-        return (self.ball is not None, self.calculateAngle(self.ball[0]) if self.ball is not None else 0, 0, 0), self.out
+        return (self.ball is not None, self.calculateAngle(self.ball[0]) if self.ball is not None else 0, 0, 0), self.out if True else cv2.cvtColor(thresh, cv2.COLOR_GRAY2BGR)
 
     def calculateAngle(self, targetPixelX):
         #

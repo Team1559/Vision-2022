@@ -101,14 +101,14 @@ class target_finder(object):
         thresh = cv2.inRange(hsv, self.hsvl, self.hsvh)
 
         # erode and dilate
-        thresh = cv2.erode(thresh, (7, 7))
-        thresh = cv2.dilate(thresh, (7, 7))
+        thresh = cv2.erode(thresh, (5, 5))
+        thresh = cv2.dilate(thresh, (5, 5))
         return thresh
 
     def findTargets(self, thresh):
         # find some contours
         # im2 is useless and used as a filler value
-        _ ,contours, hierarchy = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        contours, hierarchy = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
         # grab both min area rectangles
 

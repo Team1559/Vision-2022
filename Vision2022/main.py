@@ -12,8 +12,11 @@ import sys
 
 CAMERA_PATH = "/dev/v4l/by-path/"
 
-BALL_CAMERA_ID = CAMERA_PATH + "platform-70090000.xusb-usb-0:4.4:1.0-video-index0"
-HOOP_CAMERA_ID = CAMERA_PATH + "platform-70090000.xusb-usb-0:4.3:1.0-video-index0"
+# BALL_CAMERA_ID = CAMERA_PATH + "platform-70090000.xusb-usb-0:4.4:1.0-video-index0"
+# HOOP_CAMERA_ID = CAMERA_PATH + "platform-70090000.xusb-usb-0:4.3:1.0-video-index0"
+
+BALL_CAMERA_ID = CAMERA_PATH + "platform-3530000.xhci-usb-0:2.4:1.0-video-index0"
+HOOP_CAMERA_ID = CAMERA_PATH + "platform-3530000.xhci-usb-0:2.3:1.0-video-index0"
 
 s = socket(AF_INET, SOCK_DGRAM)
 
@@ -47,13 +50,12 @@ def init():
             print("Hoop camera not found")
 
         ball_camera_props = {
-            cv2.CAP_PROP_EXPOSURE: 1800,
-            cv2.CAP_PROP_TEMPERATURE: 4659
+            cv2.CAP_PROP_TEMPERATURE: 4659,
+            cv2.CAP_PROP_AUTO_EXPOSURE: 0,
+            cv2.CAP_PROP_BRIGHTNESS: 96
         }
         both = {
-            # cv2.CAP_PROP_SHARPNESS: 128,
             cv2.CAP_PROP_CONTRAST: 128,
-            cv2.CAP_PROP_AUTO_EXPOSURE: 2,
             44: 0
             # cv2.CAP_PROP_AUTO_WB: 0
         }
@@ -61,6 +63,7 @@ def init():
         # 23
         hoop_camera_props = {
             cv2.CAP_PROP_EXPOSURE: 5,
+            cv2.CAP_PROP_AUTO_EXPOSURE: 2,
             cv2.CAP_PROP_TEMPERATURE: 6500,
             cv2.CAP_PROP_BRIGHTNESS: 1
         }
@@ -84,8 +87,8 @@ def init():
         # subprocess.check_call(["uvcdynctrl", "-s", "Exposure (Absolute)", "5"])
 
         # Ball stuff
-        subprocess.check_call(["uvcdynctrl", "-d", "video1", "-s", "White Balance Temperature", "4659"])
-        subprocess.check_call(["uvcdynctrl", "-d", "video1", "-s", "Exposure (Absolute)", "1800"])
+        # subprocess.check_call(["uvcdynctrl", "-d", "video1", "-s", "White Balance Temperature", "4659"])
+        # subprocess.check_call(["uvcdynctrl", "-d", "video1", "-s", "Exposure (Absolute)", "1800"])
 
         # print(subprocess.check_output(["uvcdynctrl", "-g", "Brightness"]))
         # print(subprocess.check_output(["uvcdynctrl", "-g", "Exposure (Absolute)"]))
