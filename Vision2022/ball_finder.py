@@ -9,6 +9,20 @@ def findCentroid(rectangles):
     return centroid
 
 
+def calculateAngle(targetPixelX):
+    #
+    # uses fov to pixel difference ratio to calculate correction angle
+    #
+    h_fov = 77  # degrees
+    imageWidth = 640  # pixels
+
+    pasta = (imageWidth / 2 - targetPixelX)  # postive = right/clockwise
+
+    theta = h_fov * pasta / imageWidth
+
+    return theta
+
+
 class ball_finder(object):
 
     def __init__(self):
@@ -46,8 +60,8 @@ class ball_finder(object):
         # convert to hsv
         hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
         if self.team == "red":
-            hsv[:,:,0] += 90
-            hsv[:,:,0] %= 180
+            hsv[:, :, 0] += 90
+            hsv[:, :, 0] %= 180
         # blur me
         # hsv = cv2.medianBlur(hsv, 5)
         # hsv =  cv2.blur(hsv, (5,5))
@@ -67,7 +81,8 @@ class ball_finder(object):
             pass
         # cv2.waitKey(1)
 
-        circles = cv2.HoughCircles(thresh, cv2.HOUGH_GRADIENT, 1, 75, param1=255, param2=14, minRadius=10, maxRadius=200) # bye Ry ry
+        circles = cv2.HoughCircles(thresh, cv2.HOUGH_GRADIENT, 1, 75, param1=255, param2=14, minRadius=10,
+                                   maxRadius=200)  # bye Ry ry
 
         # _ ,contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
@@ -78,9 +93,9 @@ class ball_finder(object):
         # for contour in contours:
         #     (x,y),r = cv2.minEnclosingCircle(cv2.approxPolyDP(contour, 3, True))
 
-        #     if r < minAcceptableRadius and r > maxRadius and cv2.contourArea(contour) > scale * 3.141592653589793238462*r*r:
-        #         self.ball = (int(x), int(y), int(r))
-        #         maxRadius = r
+        # if r < minAcceptableRadius and r > maxRadius and cv2.contourArea(contour) > scale *
+        # 3.141592653589793238462*r*r:
+        #   self.ball = (int(x), int(y), int(r)) maxRadius = r
 
         output = frame.copy()
         # ensure at least some circles were found
@@ -104,9 +119,9 @@ class ball_finder(object):
         if self.ball is not None:
             cv2.circle(output, (self.ball[0], self.ball[1]), self.ball[2], (0, 255, 0), 4)
 
-        #if self.show:
-        #cv2.imshow("Cargo", output)
-            # cv2.waitKey(1)
+        # if self.show:
+        # cv2.imshow("Cargo", output)
+        # cv2.waitKey(1)
         return output
         # return rectangles.sort()
 
@@ -114,7 +129,7 @@ class ball_finder(object):
         frame = self.acquireImage(data)
         thresh = self.preImageProcessing(frame)
 
-        #if self.show:
+        # if self.show:
         #    cv2.imshow("Thresh", thresh)
 
         if self.show:
