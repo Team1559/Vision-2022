@@ -194,7 +194,7 @@ def send(data):
 
 def send_data(hoop_found, hoop_x, hoop_y, hoop_angle, ball_found, ball_x, ball_y, ball_angle, wait_for_other_robot):
     data = '%3.1f %3.1f %3.1f %3.1f %3.1f %3.1f %d %d %d \n' % (
-    hoop_x, hoop_y, hoop_angle, ball_x, ball_y, ball_angle, 1 if ball_found else 0, 1 if hoop_found else 0,
+    hoop_x, hoop_y, hoop_angle, ball_x, ball_y, ball_angle, int(ball_found), int(ball_found),
     wait_for_other_robot)
     send(data)
 
@@ -209,3 +209,6 @@ if __name__ == "__main__":
         cv2.destroyAllWindows()
         print("exiting")
         exit(69420)
+# This is a update for the software testing
+# We attemped to try and measure the ditance from the shooter to the camera but we are failing a lot.
+# we went to 

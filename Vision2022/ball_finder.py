@@ -9,20 +9,6 @@ def findCentroid(rectangles):
     return centroid
 
 
-def calculateAngle(targetPixelX):
-    #
-    # uses fov to pixel difference ratio to calculate correction angle
-    #
-    h_fov = 77  # degrees
-    imageWidth = 640  # pixels
-
-    pasta = (imageWidth / 2 - targetPixelX)  # postive = right/clockwise
-
-    theta = h_fov * pasta / imageWidth
-
-    return theta
-
-
 class ball_finder(object):
 
     def __init__(self):
@@ -143,7 +129,7 @@ class ball_finder(object):
 
             #cv2.waitKey(1)
         #return (False, 10, 10, 0), self.out
-        return (self.ball is not None, self.calculateAngle(self.ball[0]) if self.ball is not None else 0, 0, 0), self.out if True else cv2.cvtColor(thresh, cv2.COLOR_GRAY2BGR)
+        return (self.ball is not None, self.calculateAngle(self.ball[0]) if self.ball is not None else 0, self.calculateDistance(self.ball[1]) if self.ball is not None else 0, 0), self.out if True else cv2.cvtColor(thresh, cv2.COLOR_GRAY2BGR)
 
     def calculateAngle(self, targetPixelX):
         #
@@ -157,6 +143,26 @@ class ball_finder(object):
         theta = h_fov * pasta / imageWidth
 
         return theta
+
+    def calculateDistance(targetPixelY):
+        # import pdb
+        # pdb.set_trace()
+        #
+        # uses fov to pixel difference ratio to calculate distance
+        #
+        v_fov = 45.0  # degrees
+        imageHeight = 480.0  # pixels
+        targetPixelY = imageHeight - targetPixelY  # pixels
+        cameraHeight = 2.95  # feet FIXME: Will need to be adjusted
+        targetHeight = 8.67  # feet
+        angularOffset = -39.5  # degrees
+        heightDifference = targetHeight - cameraHeight  # feet
+
+        theta = v_fov / imageHeight * targetPixelY + angularOffset
+        d = heightDifference / np.tan(theta * 3.14159265 / 180)
+
+        return d
+
 
 
 if __name__ == "__main__":

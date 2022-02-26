@@ -150,14 +150,14 @@ class target_finder(object):
 
         if len(rectangles) > 0:
             cx, cy = findCentroid(rectangles).astype(np.int32)
-            print("Centoid: ", cx, " ", cy)
+            # print("Centoid: ", cx, " ", cy)
             self.err = cx - (self.width / 2)
             cv2.circle(frame, (cx, cy), 10, (0, 255, 255), 5)
 
             distance = calculateDistance(cy)
             heading = calculateAngle(cx)
-            print("distance :", distance)
-            print("heading :", heading)
+            # print("distance :", distance)
+            # print("heading :", heading)
             result = (True, distance, heading)
         else:
             self.err = -1000
