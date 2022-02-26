@@ -1,7 +1,7 @@
+from re import T
 import cv2
 import numpy as np
 import sys
-
 
 FONT = cv2.FONT_HERSHEY_SIMPLEX
 
@@ -104,8 +104,6 @@ class ball_finder(object):
                     pass
                 # print(np.mean(thresh[max(x - r, 0):min(x + r, self.width), max(y - r, 0):min(y + r, self.height)]))
                 # > 1*3.141519265357962/4
-        if self.ball is not None:
-            cv2.circle(output, (self.ball[0], self.ball[1]), self.ball[2], (0, 255, 0), 4)
 
         # if self.show:
         # cv2.imshow("Cargo", output)
@@ -114,25 +112,34 @@ class ball_finder(object):
         # return rectangles.sort()
 
     def find(self, data):
+
+        #Return format = (is_there_a_ball, heading, distance, 0), output_frame
         frame = self.acquireImage(data)
         thresh = self.preImageProcessing(frame)
 
         # if self.show:
         #    cv2.imshow("Thresh", thresh)
-
-        if self.show:
-            pass
             # cv2.imshow("BallCam", frame)
-            # cv2.waitKey(1)    
-        self.out = self.findTargets(frame, thresh)
-        if self.ball:
-            self.out = cv2.putText(self.out, "{:.1f}ft".format(self.calculateDistance(self.ball[1])), self.ball[:2], FONT, 1, (0,0,0), 2, cv2.LINE_AA)
-        # if self.show:
             # cv2.imshow("Ball Thresh", thresh)
 
             #cv2.waitKey(1)
-        #return (False, 10, 10, 0), self.out
-        return (self.ball is not None, self.calculateAngle(self.ball[0]) if self.ball is not None else 0, self.calculateDistance(self.ball[1]) if self.ball is not None else 0, 0), self.out if True else cv2.cvtColor(thresh, cv2.COLOR_GRAY2BGR)
+        
+        self.out = self.findTargets(frame, thresh)
+
+        if not self.ball or self.ball is None:
+            return (False, 0, 0, 0), self.out
+        distance = self.calculateDistance(self.ball[1])
+        
+        if distance < 0.3 or distance > 20:
+            return (False, 0, 0, 0), self.out
+
+        cv2.circle(self.out, (self.ball[0], self.ball[1]), self.ball[2], (0, 255, 0), 4)
+        (text_w, text_h), _ = cv2.getTextSize("{:.1f}ft".format(distance), FONT, 1, 4)
+        TEXT_PADDING = 5
+        cv2.rectangle(self.out, (0,0), (TEXT_PADDING*2+text_w,TEXT_PADDING*2+text_h), (0,0,0), -1)
+        cv2.putText(self.out, "{:.1f}ft".format(distance), (TEXT_PADDING,TEXT_PADDING+text_h), FONT, 1, (255,255,255), 4, cv2.LINE_AA)
+
+        return (True, self.calculateAngle(self.ball[0]), self.calculateDistance(self.ball[1]), 0), self.out if True else cv2.cvtColor(thresh, cv2.COLOR_GRAY2BGR)
 
     def calculateAngle(self, targetPixelX):
         #

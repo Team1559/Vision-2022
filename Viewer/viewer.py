@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 from socket import *
 
+SCALE = 0.8
 
 def main():
     s = socket(AF_INET, SOCK_DGRAM)
@@ -13,7 +14,7 @@ def main():
             print(len(data))
             npimg = np.frombuffer(data, dtype=np.uint8)
             frame = cv2.imdecode(npimg, 1)
-            frame = cv2.resize(frame, (int(640), int(850)), interpolation=cv2.INTER_LINEAR )
+            frame = cv2.resize(frame, (int(640 * SCALE), int(480 * 2 * SCALE)), interpolation=cv2.INTER_LINEAR )
             cv2.imshow("Stream", frame)
             cv2.waitKey(1)
 

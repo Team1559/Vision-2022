@@ -161,16 +161,16 @@ def main():
             # stream images depending on result, also should change
             imageHeight = 480
             imageWidth = 640
-            THICKNESS = 4
-            HOOP_COLOR = (255, 255, 0)
-            BALL_COLOR = (0, 215, 255)
-            cv2.line(hoop_frame, ((imageWidth / 2) - 20, imageHeight / 2), (imageWidth / 2 + 20, imageHeight / 2),
+            THICKNESS = 6
+            HOOP_COLOR = (255, 255, 255)
+            BALL_COLOR = (255, 255, 255)
+            cv2.line(hoop_frame, ((imageWidth / 2) - 20, imageHeight * 1/3), (imageWidth / 2 + 20, imageHeight * 1/3),
                      HOOP_COLOR, THICKNESS)
-            cv2.line(hoop_frame, ((imageWidth / 2), imageHeight / 2 - 20), (imageWidth / 2, imageHeight / 2 + 20),
+            cv2.line(hoop_frame, ((imageWidth / 2), imageHeight * 1/3 - 20), (imageWidth / 2, imageHeight * 1/3 + 20),
                      HOOP_COLOR, THICKNESS)
-            cv2.line(ball_frame, ((imageWidth / 2) - 20, imageHeight / 2), (imageWidth / 2 + 20, imageHeight / 2),
+            cv2.line(ball_frame, ((imageWidth / 2) - 20, imageHeight * 4/5), (imageWidth / 2 + 20, imageHeight * 4/5),
                      BALL_COLOR, THICKNESS)
-            cv2.line(ball_frame, ((imageWidth / 2), imageHeight / 2 - 20), (imageWidth / 2, imageHeight / 2 + 20),
+            cv2.line(ball_frame, ((imageWidth / 2), imageHeight * 4/5 - 20), (imageWidth / 2, imageHeight * 4/5 + 20),
                      BALL_COLOR, THICKNESS)
             vis = np.vstack(
                 (cv2.resize(hoop_frame, None, fx=0.5, fy=0.5), cv2.resize(ball_frame, None, fx=0.5, fy=0.5)))

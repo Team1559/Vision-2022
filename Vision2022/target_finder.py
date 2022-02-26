@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 import sys
 
+FONT = cv2.FONT_HERSHEY_SIMPLEX
 
 def calculateDistance(centroid_y):
     # import pdb
@@ -153,8 +154,8 @@ class target_finder(object):
             # print("Centoid: ", cx, " ", cy)
             self.err = cx - (self.width / 2)
             cv2.circle(frame, (cx, cy), 10, (0, 255, 255), 5)
-
             distance = calculateDistance(cy)
+            cv2.putText(frame, "{:.1f}ft".format(distance), (0,30), FONT, 1, (255,255,255), 4, cv2.LINE_AA)
             heading = calculateAngle(cx)
             # print("distance :", distance)
             # print("heading :", heading)
