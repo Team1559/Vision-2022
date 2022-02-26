@@ -3,6 +3,8 @@ import numpy as np
 import sys
 
 
+FONT = cv2.FONT_HERSHEY_SIMPLEX
+
 def findCentroid(rectangles):
     centers = np.array([r[0] for r in rectangles])
     centroid = np.mean(centers, axis=0)
@@ -123,8 +125,9 @@ class ball_finder(object):
             # cv2.imshow("BallCam", frame)
             # cv2.waitKey(1)    
         self.out = self.findTargets(frame, thresh)
-        if self.show:
-            pass
+        if self.ball:
+            self.out = cv2.putText(self.out, "{:.1f}ft".format(self.calculateDistance(self.ball[1])), self.ball[:2], FONT, 1, (0,0,0), 2, cv2.LINE_AA)
+        # if self.show:
             # cv2.imshow("Ball Thresh", thresh)
 
             #cv2.waitKey(1)
