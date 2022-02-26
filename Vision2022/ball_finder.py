@@ -144,7 +144,7 @@ class ball_finder(object):
 
         return theta
 
-    def calculateDistance(targetPixelY):
+    def calculateDistance(self, targetPixelY):
         # import pdb
         # pdb.set_trace()
         #
@@ -153,8 +153,8 @@ class ball_finder(object):
         v_fov = 45.0  # degrees
         imageHeight = 480.0  # pixels
         targetPixelY = imageHeight - targetPixelY  # pixels
-        cameraHeight = 2.95  # feet FIXME: Will need to be adjusted
-        targetHeight = 8.67  # feet
+        cameraHeight = 2.5416  # feet FIXME: Will need to be adjusted
+        targetHeight = 4.75 / 12  # feet
         angularOffset = -39.5  # degrees
         heightDifference = targetHeight - cameraHeight  # feet
 
