@@ -9,7 +9,8 @@ def main():
     no_data_frames = 0
     s = socket(AF_INET, SOCK_DGRAM)
     s.bind(('', 1180))
-    s.setblocking(False)
+    s.setblocking(True)
+    s.settimeout(1)
 
     while True:
         try:
