@@ -126,16 +126,16 @@ def main():
             # Print and send depending on which results we got, probably should change
             if hoop_result is not None and ball_result is not None:
                 print(str(hoop_result) + elapsedHoop + " <-- Hoop, Ball--> " + str(ball_result) + elapsedBall)
-                send_data(hoop_result[1], hoop_result[2], 0, ball_result[0], ball_result[1],
+                send_data(hoop_result[0], hoop_result[1], hoop_result[2], 0, ball_result[0], ball_result[1],
                           ball_result[2], ball_result[3], 0)
                 # Python 3:send_data(*hoop_result[:3], 0, *ball_result[:4], 0)
             elif ball_result is not None:
                 if ball_result[0]:
                     print("Ball--> " + str(ball_result) + elapsedBall)
-                send_data(0, 0, 0, ball_result[0], ball_result[1], ball_result[2], ball_result[3], 0)
+                send_data(False, 0, 0, 0, ball_result[0], ball_result[1], ball_result[2], ball_result[3], 0)
             elif hoop_result is not None:
                 print(str(hoop_result) + elapsedHoop + " <-- Hoop")
-                send_data(hoop_result[1], hoop_result[2], 0, False, 0, 0, 0, 0)
+                send_data(hoop_result[0], hoop_result[1], hoop_result[2], 0, False, 0, 0, 0, 0)
 
             # stream images depending on result, also should change
             imageHeight = 480
@@ -171,10 +171,10 @@ def main():
 
 
 # Data sending stuff
-def send_data(hoop_x, hoop_y, hoop_angle, ball_found, ball_x, ball_y, ball_angle, wait_for_other_robot):
+def send_data(hoop_found, hoop_x, hoop_y, hoop_angle, ball_found, ball_x, ball_y, ball_angle, wait_for_other_robot):
 
     data = '%3.1f %3.1f %3.1f %3.1f %3.1f %3.1f %d %d %d \n' % (
-        hoop_x, hoop_y, hoop_angle, ball_x, ball_y, ball_angle, int(ball_found), int(ball_found), wait_for_other_robot)
+        hoop_x, hoop_y, hoop_angle, ball_x, ball_y, ball_angle, int(hoop_found), int(ball_found), wait_for_other_robot)
 
     s.sendto(data.encode('utf-8'), address)
 
