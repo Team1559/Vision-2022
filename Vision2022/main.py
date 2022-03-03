@@ -19,6 +19,17 @@ s = socket(AF_INET, SOCK_DGRAM)
 address = ("10.15.59.2", 5801)
 
 do_ball_finder = do_hoop_finder = True
+is_jetson = None
+cpuArch = None
+ball_camera = None
+hoop_camera = None
+
+UDP_PORT = 5005
+sock = socket(AF_INET, SOCK_DGRAM)
+sock.bind(("", UDP_PORT))
+sock.setblocking(False)
+
+color = "Invalid"
 
 
 def init():
@@ -37,12 +48,12 @@ def init():
         ball_camera = None
         try:
             ball_camera = cv2.VideoCapture(BALL_CAMERA_ID)
-        except:
+        except error:
             print("Ball camera not found")
         hoop_camera = None
         try:
             hoop_camera = cv2.VideoCapture(HOOP_CAMERA_ID)
-        except:
+        except error:
             print("Hoop camera not found")
 
         ball_camera_props = {
@@ -80,12 +91,13 @@ def get_hoop(hoop_frame):
 
 def get_ball(ball_frame):
     ball = ball_finder.ball_finder()
+    ball.set_color(color)
     bd, bf = ball.find(ball_frame)
     return bd, bf
 
 
 def main():
-    global ball_camera
+    global ball_camera, elapsedHoop
     global hoop_camera
     hoop_frame = np.zeros(shape=(480, 640, 3))
     ball_frame = np.zeros(shape=(480, 640, 3))
@@ -142,13 +154,17 @@ def main():
             THICKNESS = 6
             HOOP_COLOR = (255, 255, 255)
             BALL_COLOR = (255, 255, 255)
-            cv2.line(hoop_frame, ((imageWidth / 2) - 20, imageHeight * 1/3), (imageWidth / 2 + 20, imageHeight * 1/3),
+            cv2.line(hoop_frame, ((imageWidth / 2) - 20, imageHeight * 1 / 3),
+                     (imageWidth / 2 + 20, imageHeight * 1 / 3),
                      HOOP_COLOR, THICKNESS)
-            cv2.line(hoop_frame, ((imageWidth / 2), imageHeight * 1/3 - 20), (imageWidth / 2, imageHeight * 1/3 + 20),
+            cv2.line(hoop_frame, ((imageWidth / 2), imageHeight * 1 / 3 - 20),
+                     (imageWidth / 2, imageHeight * 1 / 3 + 20),
                      HOOP_COLOR, THICKNESS)
-            cv2.line(ball_frame, ((imageWidth / 2) - 20, imageHeight * 4/5), (imageWidth / 2 + 20, imageHeight * 4/5),
+            cv2.line(ball_frame, ((imageWidth / 2) - 20, imageHeight * 4 / 5),
+                     (imageWidth / 2 + 20, imageHeight * 4 / 5),
                      BALL_COLOR, THICKNESS)
-            cv2.line(ball_frame, ((imageWidth / 2), imageHeight * 4/5 - 20), (imageWidth / 2, imageHeight * 4/5 + 20),
+            cv2.line(ball_frame, ((imageWidth / 2), imageHeight * 4 / 5 - 20),
+                     (imageWidth / 2, imageHeight * 4 / 5 + 20),
                      BALL_COLOR, THICKNESS)
             vis = np.vstack(
                 (cv2.resize(hoop_frame, None, fx=0.5, fy=0.5), cv2.resize(ball_frame, None, fx=0.5, fy=0.5)))
@@ -172,21 +188,30 @@ def send(data):
 
 def send_data(hoop_found, hoop_x, hoop_y, hoop_angle, ball_found, ball_x, ball_y, ball_angle, wait_for_other_robot):
     data = '%3.1f %3.1f %3.1f %3.1f %3.1f %3.1f %d %d %d \n' % (
-    hoop_x, hoop_y, hoop_angle, ball_x, ball_y, ball_angle, int(ball_found), int(ball_found),
-    wait_for_other_robot)
+        hoop_x, hoop_y, hoop_angle, ball_x, ball_y, ball_angle, int(ball_found), int(ball_found),
+        wait_for_other_robot)
     send(data)
+
+
+def receive():
+    global color
+    global sock
+    data, addr = sock.recvfrom(1024)  # buffer size is 1024 bytes
+    color = data
 
 
 if __name__ == "__main__":
     try:
+
         init()
         main()
     except KeyboardInterrupt:
         # status(-1)
         time.sleep(0.25)
+        sock.close()
         cv2.destroyAllWindows()
         print("exiting")
         exit(69420)
 # This is a update for the software testing
 # We attemped to try and measure the ditance from the shooter to the camera but we are failing a lot.
-# we went to 
+# we went to

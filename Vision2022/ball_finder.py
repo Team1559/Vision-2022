@@ -5,6 +5,7 @@ import sys
 
 FONT = cv2.FONT_HERSHEY_SIMPLEX
 
+
 def findCentroid(rectangles):
     centers = np.array([r[0] for r in rectangles])
     centroid = np.mean(centers, axis=0)
@@ -22,12 +23,13 @@ class ball_finder(object):
         self.ball = None
         self.team = "red"
         # NOOOOOOOO BGR, BGR bad
-        red_low = np.array((90, 130, 45))
-        red_high = np.array((100, 255, 255))
-        blue_low = np.array((105, 100, 0))
-        blue_high = np.array((121, 255, 255))
-        self.hsvl = blue_low if self.team == "blue" else red_low
-        self.hsvh = blue_high if self.team == "blue" else red_high
+        self.invalid = np.array((0, 0, 0))
+        self.red_low = np.array((90, 130, 45))
+        self.red_high = np.array((100, 255, 255))
+        self.blue_low = np.array((105, 100, 0))
+        self.blue_high = np.array((121, 255, 255))
+        self.hsvl = self.invalid
+        self.hsvh = self.invalid
         self.show = "show" in sys.argv
         # self.width = 800
         # self.height = 488
@@ -35,8 +37,36 @@ class ball_finder(object):
         self.height = 0
 
         self.found = False
-        self.out = None
+        self.out = np.zeros(shape=(480, 640, 3))
         self.minarea = 10  # 100
+        self.color = (0, 165, 255)
+        self.highlightColor = (0, 0)
+        self.position = (10, 100)
+        self.text = "Invalid"
+
+    def set_color(self, color):
+        color_RED = (0, 0, 255)
+        color_ORANGE = (0, 165, 255)
+        color_BLUE = (255, 0, 0)
+
+        if color == "blue":
+            self.hsvh = self.blue_high
+            self.hsvl = self.blue_low
+            self.color = color_BLUE
+            self.highlightColor = color_RED
+            self.text = "Blue"
+
+        elif color == "red":
+            self.hsvh = self.red_high
+            self.hsvl = self.red_low
+            self.color = color_RED
+            self.highlightColor = color_BLUE
+            self.text = "red"
+        else:
+            self.hsvh = self.invalid
+            self.hsvl = self.invalid
+            self.color = color_ORANGE
+            self.text = "Invalid"
 
     def acquireImage(self, data):
         frame = data
@@ -113,33 +143,37 @@ class ball_finder(object):
 
     def find(self, data):
 
-        #Return format = (is_there_a_ball, heading, distance, 0), output_frame
+        # Return format = (is_there_a_ball, heading, distance, 0), output_frame
         frame = self.acquireImage(data)
         thresh = self.preImageProcessing(frame)
 
         # if self.show:
         #    cv2.imshow("Thresh", thresh)
-            # cv2.imshow("BallCam", frame)
-            # cv2.imshow("Ball Thresh", thresh)
+        # cv2.imshow("BallCam", frame)
+        # cv2.imshow("Ball Thresh", thresh)
 
-            #cv2.waitKey(1)
-        
+        # cv2.waitKey(1)
+
         self.out = self.findTargets(frame, thresh)
 
         if not self.ball or self.ball is None:
             return (False, 0, 0, 0), self.out
         distance = self.calculateDistance(self.ball[1])
-        
+
         if distance < 0.3 or distance > 20:
             return (False, 0, 0, 0), self.out
 
-        cv2.circle(self.out, (self.ball[0], self.ball[1]), self.ball[2], (0, 255, 0), 4)
+        cv2.circle(self.out, (self.ball[0], self.ball[1]), self.ball[2], self.highlightColor, 4)
         (text_w, text_h), _ = cv2.getTextSize("{:.1f}ft".format(distance), FONT, 1, 4)
         TEXT_PADDING = 5
-        cv2.rectangle(self.out, (0,0), (TEXT_PADDING*2+text_w,TEXT_PADDING*2+text_h), (0,0,0), -1)
-        cv2.putText(self.out, "{:.1f}ft".format(distance), (TEXT_PADDING,TEXT_PADDING+text_h), FONT, 1, (255,255,255), 4, cv2.LINE_AA)
+        cv2.rectangle(self.out, (0, 0), (TEXT_PADDING * 2 + text_w, TEXT_PADDING * 2 + text_h), (0, 0, 0), -1)
+        cv2.putText(self.out, "{:.1f}ft".format(distance), (TEXT_PADDING, TEXT_PADDING + text_h), FONT, 1,
+                    (255, 255, 255), 4, cv2.LINE_AA)
+        # Text for the current color being targeted
+        cv2.putText(self.out, self.text, self.position, cv2.FONT_HERSHEY_SIMPLEX, 1, self.color, 2, 2)
 
-        return (True, self.calculateAngle(self.ball[0]), self.calculateDistance(self.ball[1]), 0), self.out if True else cv2.cvtColor(thresh, cv2.COLOR_GRAY2BGR)
+        return (True, self.calculateAngle(self.ball[0]), self.calculateDistance(self.ball[1]),
+                0), self.out if True else cv2.cvtColor(thresh, cv2.COLOR_GRAY2BGR)
 
     def calculateAngle(self, targetPixelX):
         #
@@ -172,7 +206,6 @@ class ball_finder(object):
         d = heightDifference / np.tan(theta * 3.14159265 / 180)
 
         return d
-
 
 
 if __name__ == "__main__":
