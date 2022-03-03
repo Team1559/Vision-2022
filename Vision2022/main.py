@@ -15,9 +15,9 @@ CAMERA_PATH = "/dev/v4l/by-path/"
 # BALL_CAMERA_ID = CAMERA_PATH + "platform-3530000.xhci-usb-0:2.4:1.0-video-index0"
 # HOOP_CAMERA_ID = CAMERA_PATH + "platform-3530000.xhci-usb-0:2.3:1.0-video-index0"
 
-#Without hub
-BALL_CAMERA_ID = CAMERA_PATH + "platform-3530000.xhci-usb-0:2:1.0-video-index0"
-HOOP_CAMERA_ID = CAMERA_PATH + "platform-3530000.xhci-usb-0:3:1.0-video-index0"
+# Without hub
+BALL_CAMERA_ID = CAMERA_PATH + "platform-3530000.xhci-usb-0:2.4:1.0-video-index0"
+HOOP_CAMERA_ID = CAMERA_PATH + "platform-3530000.xhci-usb-0:2.3:1.0-video-index0"
 
 s = socket(AF_INET, SOCK_DGRAM)
 
@@ -32,7 +32,6 @@ sock.bind(("", UDP_PORT))
 sock.setblocking(False)
 
 color = "Invalid"
-
 
 is_jetson = False
 cpuArch = platform.uname()[4]
@@ -80,11 +79,16 @@ if is_jetson:
         hoop_camera.set(prop, value)
 
 hoop_locator = target_finder.target_finder()
+
+
 def get_hoop(hoop_frame):
     hd, hf = hoop_locator.find(hoop_frame)
     return hd, hf
 
+
 ball_locator = ball_finder.ball_finder()
+
+
 def get_ball(ball_frame):
     ball_locator.set_color(color)
     bd, bf = ball_locator.find(ball_frame)
@@ -176,7 +180,6 @@ def main():
 
 # Data sending stuff
 def send_data(hoop_found, hoop_x, hoop_y, hoop_angle, ball_found, ball_x, ball_y, ball_angle, wait_for_other_robot):
-
     data = '%3.1f %3.1f %3.1f %3.1f %3.1f %3.1f %d %d %d \n' % (
         hoop_x, hoop_y, hoop_angle, ball_x, ball_y, ball_angle, int(hoop_found), int(ball_found), wait_for_other_robot)
 

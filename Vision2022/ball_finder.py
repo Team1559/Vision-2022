@@ -47,21 +47,21 @@ def calculateAngle(targetPixelX):
 
 class ball_finder(object):
 
-    def __init__(self,team):
+    def __init__(self):
         """Initialize camera"""
         # BRIGHTNESS AT 30 for perfect, 85 for driver station
         self.cx = -1
         self.cy = -1
         self.err = -1000
         self.ball = None
-        self.team = team
         # NOOOOOOOO BGR, BGR bad
-        red_low = np.array((90, 130, 45))
-        red_high = np.array((100, 255, 255))
-        blue_low = np.array((105, 100, 0))
-        blue_high = np.array((121, 255, 255))
-        self.hsvl = blue_low if self.team == "blue" else red_low
-        self.hsvh = blue_high if self.team == "blue" else red_high
+        self.invalid = np.array((0, 0, 0))
+        self.red_low = np.array((90, 130, 45))
+        self.red_high = np.array((100, 255, 255))
+        self.blue_low = np.array((105, 100, 0))
+        self.blue_high = np.array((121, 255, 255))
+        self.hsv_l = self.invalid
+        self.hsv_h = self.invalid
         self.show = "show" in sys.argv
         self.width = 0
         self.height = 0
@@ -107,7 +107,7 @@ class ball_finder(object):
     def preImageProcessing(self, frame):
         # convert to hsv
         hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-        if self.team == "red":
+        if self.color == "red":
             hsv[:, :, 0] += 90
             hsv[:, :, 0] %= 180
 
@@ -144,7 +144,7 @@ class ball_finder(object):
         thresh = self.preImageProcessing(frame)
 
         self.out = self.findTargets(frame, thresh)
-
+        cv2.putText(self.out, self.text, self.position, cv2.FONT_HERSHEY_SIMPLEX, 1, self.color, 2, 2)
         if not self.ball or self.ball is None:
             return (False, 0, 0, 0), self.out
         distance = calculateDistance(self.ball[1])
@@ -159,7 +159,6 @@ class ball_finder(object):
         cv2.putText(self.out, "{:.1f}ft".format(distance), (TEXT_PADDING, TEXT_PADDING + text_h), FONT, 1,
                     (255, 255, 255), 4, cv2.LINE_AA)
         # Text for the current color being targeted
-        cv2.putText(self.out, self.text, self.position, cv2.FONT_HERSHEY_SIMPLEX, 1, self.color, 2, 2)
 
         return (True, calculateAngle(self.ball[0]), calculateDistance(self.ball[1]),
                 0), self.out if True else cv2.cvtColor(thresh, cv2.COLOR_GRAY2BGR)
