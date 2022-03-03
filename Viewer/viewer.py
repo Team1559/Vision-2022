@@ -31,7 +31,7 @@ def main():
                 frame = np.zeros(shape=(int(640 * SCALE), int(480 * 2 * SCALE), 3))
                 cv2.putText(frame, text, (int(420 * SCALE), int(320 * SCALE)), cv2.FONT_HERSHEY_SIMPLEX, 1,
                             (255, 255, 255), 2, 2)
-                cv2.imshow("Stream", frame)
+                cv2.imshow("Jetson Camera Stream", frame)
                 cv2.waitKey(1)
 
         except KeyboardInterrupt:
