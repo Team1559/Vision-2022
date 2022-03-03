@@ -33,7 +33,6 @@ def main():
                 cv2.imshow("Stream", frame)
                 cv2.waitKey(1)
 
-
         except KeyboardInterrupt:
             print("exiting cuz of keyboard press")
             leave()
