@@ -47,21 +47,21 @@ def calculateAngle(targetPixelX):
 
 class ball_finder(object):
 
-    def __init__(self):
+    def __init__(self,team):
         """Initialize camera"""
         # BRIGHTNESS AT 30 for perfect, 85 for driver station
         self.cx = -1
         self.cy = -1
         self.err = -1000
         self.ball = None
-        self.team = "red"
-        self.invalid = np.array((0, 0, 0))
-        self.red_low = np.array((90, 130, 45))
-        self.red_high = np.array((100, 255, 255))
-        self.blue_low = np.array((105, 100, 0))
-        self.blue_high = np.array((121, 255, 255))
-        self.hsv_l = self.invalid
-        self.hsv_h = self.invalid
+        self.team = team
+        # NOOOOOOOO BGR, BGR bad
+        red_low = np.array((90, 130, 45))
+        red_high = np.array((100, 255, 255))
+        blue_low = np.array((105, 100, 0))
+        blue_high = np.array((121, 255, 255))
+        self.hsvl = blue_low if self.team == "blue" else red_low
+        self.hsvh = blue_high if self.team == "blue" else red_high
         self.show = "show" in sys.argv
         self.width = 0
         self.height = 0

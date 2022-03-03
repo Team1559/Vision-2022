@@ -8,10 +8,16 @@ import target_finder
 import time
 import sys
 
-CAMERA_PATH = "/dev/v4l/by-path/"
+TEAM = "red"
 
-BALL_CAMERA_ID = CAMERA_PATH + "platform-3530000.xhci-usb-0:2.4:1.0-video-index0"
-HOOP_CAMERA_ID = CAMERA_PATH + "platform-3530000.xhci-usb-0:2.3:1.0-video-index0"
+CAMERA_PATH = "/dev/v4l/by-path/"
+# With hub
+# BALL_CAMERA_ID = CAMERA_PATH + "platform-3530000.xhci-usb-0:2.4:1.0-video-index0"
+# HOOP_CAMERA_ID = CAMERA_PATH + "platform-3530000.xhci-usb-0:2.3:1.0-video-index0"
+
+#Without hub
+BALL_CAMERA_ID = CAMERA_PATH + "platform-3530000.xhci-usb-0:2:1.0-video-index0"
+HOOP_CAMERA_ID = CAMERA_PATH + "platform-3530000.xhci-usb-0:3:1.0-video-index0"
 
 s = socket(AF_INET, SOCK_DGRAM)
 
@@ -73,17 +79,15 @@ if is_jetson:
     for prop, value in hoop_camera_props.items():
         hoop_camera.set(prop, value)
 
-
+hoop_locator = target_finder.target_finder()
 def get_hoop(hoop_frame):
-    hoop = target_finder.target_finder()
-    hd, hf = hoop.find(hoop_frame)
+    hd, hf = hoop_locator.find(hoop_frame)
     return hd, hf
 
-
+ball_locator = ball_finder.ball_finder()
 def get_ball(ball_frame):
-    ball = ball_finder.ball_finder()
-    ball.set_color(color)
-    bd, bf = ball.find(ball_frame)
+    ball_locator.set_color(color)
+    bd, bf = ball_locator.find(ball_frame)
     return bd, bf
 
 
@@ -159,7 +163,7 @@ def main():
                 (cv2.resize(hoop_frame, None, fx=0.5, fy=0.5), cv2.resize(ball_frame, None, fx=0.5, fy=0.5)))
             if "show" in sys.argv:
                 cv2.imshow("DriverStation", np.vstack((hoop_frame, ball_frame)))
-            encoded, buffer = cv2.imencode('.jpg', vis, [cv2.IMWRITE_JPEG_QUALITY, 20])
+            encoded, buffer = cv2.imencode('.jpg', vis, [cv2.IMWRITE_JPEG_QUALITY, 22])
             s.sendto(buffer, ("10.15.59.46", 1180))
 
             cv2.waitKey(1)

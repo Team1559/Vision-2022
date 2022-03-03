@@ -13,7 +13,7 @@ def calculateDistance(centroid_y):
     v_fov = 45.0  # degrees
     imageHeight = 480.0  # pixels
     targetPixelY = imageHeight - centroid_y  # pixels
-    cameraHeight = 3  # feet
+    cameraHeight = 33 / 12  # feet
     targetHeight = 8.67  # feet
     angularOffset = 2.5  # degrees
     heightDifference = targetHeight - cameraHeight  # feet
