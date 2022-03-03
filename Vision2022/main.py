@@ -1,4 +1,5 @@
 #!/usr/bin/python
+import subprocess
 import cv2
 import platform
 from socket import *
@@ -18,60 +19,57 @@ s = socket(AF_INET, SOCK_DGRAM)
 address = ("10.15.59.2", 5801)
 
 do_ball_finder = do_hoop_finder = True
-elapsedBall = 0
-elapsedHoop = 0
-UDP_PORT = 5005
-sock = socket(AF_INET, SOCK_DGRAM)
-sock.bind(("", UDP_PORT))
-sock.setblocking(False)
-
-color = "Invalid"
 
 
-is_jetson = False
-cpuArch = platform.uname()[4]
-if cpuArch != "x86_64" and cpuArch != "AMD64":
-    is_jetson = True
+def init():
+    global is_jetson
+    global cpuArch
+    global ball_camera
+    global hoop_camera
+    is_jetson = False
+    cpuArch = platform.uname()[4]
+    if cpuArch != "x86_64" and cpuArch != "AMD64":
+        is_jetson = True
 
-if is_jetson:
-    # Brightness not set for ball camera?
-    # CAP_PROP_SATURATION not set for either camera?
-    ball_camera = None
-    try:
-        ball_camera = cv2.VideoCapture(BALL_CAMERA_ID)
-    except error:
-        print("Ball camera not found")
-    hoop_camera = None
-    try:
-        hoop_camera = cv2.VideoCapture(HOOP_CAMERA_ID)
-    except error:
-        print("Hoop camera not found")
+    if is_jetson:
+        # brightness not set for ball camera?
+        # CAP_PROP_SATURATION not set for either camera?
+        ball_camera = None
+        try:
+            ball_camera = cv2.VideoCapture(BALL_CAMERA_ID)
+        except:
+            print("Ball camera not found")
+        hoop_camera = None
+        try:
+            hoop_camera = cv2.VideoCapture(HOOP_CAMERA_ID)
+        except:
+            print("Hoop camera not found")
 
-    ball_camera_props = {
-        cv2.CAP_PROP_TEMPERATURE: 4659,
-        cv2.CAP_PROP_AUTO_EXPOSURE: 0,
-        cv2.CAP_PROP_BRIGHTNESS: 96
-    }
+        ball_camera_props = {
+            cv2.CAP_PROP_TEMPERATURE: 4659,
+            cv2.CAP_PROP_AUTO_EXPOSURE: 0,
+            cv2.CAP_PROP_BRIGHTNESS: 96
+        }
 
-    both = {
-        cv2.CAP_PROP_CONTRAST: 128,
-        44: 0
-        # cv2.CAP_PROP_AUTO_WB: 0
-    }
+        both = {
+            cv2.CAP_PROP_CONTRAST: 128,
+            44: 0
+            # cv2.CAP_PROP_AUTO_WB: 0
+        }
 
-    hoop_camera_props = {
-        cv2.CAP_PROP_EXPOSURE: 5,
-        cv2.CAP_PROP_AUTO_EXPOSURE: 2,
-        cv2.CAP_PROP_TEMPERATURE: 6500,
-        cv2.CAP_PROP_BRIGHTNESS: 1
-    }
-    for prop, value in both.items():
-        ball_camera.set(prop, value)
-        hoop_camera.set(prop, value)
-    for prop, value in ball_camera_props.items():
-        ball_camera.set(prop, value)
-    for prop, value in hoop_camera_props.items():
-        hoop_camera.set(prop, value)
+        hoop_camera_props = {
+            cv2.CAP_PROP_EXPOSURE: 5,
+            cv2.CAP_PROP_AUTO_EXPOSURE: 2,
+            cv2.CAP_PROP_TEMPERATURE: 6500,
+            cv2.CAP_PROP_BRIGHTNESS: 1
+        }
+        for prop, value in both.items():
+            ball_camera.set(prop, value)
+            hoop_camera.set(prop, value)
+        for prop, value in ball_camera_props.items():
+            ball_camera.set(prop, value)
+        for prop, value in hoop_camera_props.items():
+            hoop_camera.set(prop, value)
 
 
 def get_hoop(hoop_frame):
@@ -82,13 +80,12 @@ def get_hoop(hoop_frame):
 
 def get_ball(ball_frame):
     ball = ball_finder.ball_finder()
-    ball.set_color(color)
     bd, bf = ball.find(ball_frame)
     return bd, bf
 
 
 def main():
-    global ball_camera, elapsedHoop, elapsedBall
+    global ball_camera
     global hoop_camera
     hoop_frame = np.zeros(shape=(480, 640, 3))
     ball_frame = np.zeros(shape=(480, 640, 3))
@@ -97,6 +94,8 @@ def main():
         try:
             hoop_result = None
             ball_result = None
+            elapsed = ""
+
             if do_ball_finder:  # find ball
                 ball_cam_status, ball_cam_frame = ball_camera.read()
                 if not ball_cam_status:
@@ -143,17 +142,13 @@ def main():
             THICKNESS = 6
             HOOP_COLOR = (255, 255, 255)
             BALL_COLOR = (255, 255, 255)
-            cv2.line(hoop_frame, ((imageWidth / 2) - 20, imageHeight * 1 / 3),
-                     (imageWidth / 2 + 20, imageHeight * 1 / 3),
+            cv2.line(hoop_frame, ((imageWidth / 2) - 20, imageHeight * 1/3), (imageWidth / 2 + 20, imageHeight * 1/3),
                      HOOP_COLOR, THICKNESS)
-            cv2.line(hoop_frame, ((imageWidth / 2), imageHeight * 1 / 3 - 20),
-                     (imageWidth / 2, imageHeight * 1 / 3 + 20),
+            cv2.line(hoop_frame, ((imageWidth / 2), imageHeight * 1/3 - 20), (imageWidth / 2, imageHeight * 1/3 + 20),
                      HOOP_COLOR, THICKNESS)
-            cv2.line(ball_frame, ((imageWidth / 2) - 20, imageHeight * 4 / 5),
-                     (imageWidth / 2 + 20, imageHeight * 4 / 5),
+            cv2.line(ball_frame, ((imageWidth / 2) - 20, imageHeight * 4/5), (imageWidth / 2 + 20, imageHeight * 4/5),
                      BALL_COLOR, THICKNESS)
-            cv2.line(ball_frame, ((imageWidth / 2), imageHeight * 4 / 5 - 20),
-                     (imageWidth / 2, imageHeight * 4 / 5 + 20),
+            cv2.line(ball_frame, ((imageWidth / 2), imageHeight * 4/5 - 20), (imageWidth / 2, imageHeight * 4/5 + 20),
                      BALL_COLOR, THICKNESS)
             vis = np.vstack(
                 (cv2.resize(hoop_frame, None, fx=0.5, fy=0.5), cv2.resize(ball_frame, None, fx=0.5, fy=0.5)))
@@ -171,32 +166,27 @@ def main():
 
 
 # Data sending stuff
-def send_data(hoop_found, hoop_x, hoop_y, hoop_angle, ball_found, ball_x, ball_y, ball_angle, wait_for_other_robot):
-
-    data = '%3.1f %3.1f %3.1f %3.1f %3.1f %3.1f %d %d %d \n' % (
-        hoop_x, hoop_y, hoop_angle, ball_x, ball_y, ball_angle, int(hoop_found), int(ball_found), wait_for_other_robot)
-
+def send(data):
     s.sendto(data.encode('utf-8'), address)
 
 
-def receive():
-    global color
-    global sock
-    data, sender = sock.recvfrom(1024)  # buffer size is 1024 bytes
-    if data is not None:
-        color = data.decode('utf-8')
+def send_data(hoop_found, hoop_x, hoop_y, hoop_angle, ball_found, ball_x, ball_y, ball_angle, wait_for_other_robot):
+    data = '%3.1f %3.1f %3.1f %3.1f %3.1f %3.1f %d %d %d \n' % (
+    hoop_x, hoop_y, hoop_angle, ball_x, ball_y, ball_angle, int(ball_found), int(ball_found),
+    wait_for_other_robot)
+    send(data)
 
 
 if __name__ == "__main__":
     try:
+        init()
         main()
     except KeyboardInterrupt:
         # status(-1)
         time.sleep(0.25)
-        sock.close()
         cv2.destroyAllWindows()
         print("exiting")
         exit(69420)
 # This is a update for the software testing
-# We attempted to try and measure the distance from the shooter to the camera but we are failing a lot.
-# we went to
+# We attemped to try and measure the ditance from the shooter to the camera but we are failing a lot.
+# we went to 
