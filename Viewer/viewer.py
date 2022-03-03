@@ -23,7 +23,7 @@ def main():
                 np_img = np.frombuffer(data, dtype=np.uint8)
                 frame = cv2.imdecode(np_img, 1)
                 frame = cv2.resize(frame, (int(640 * SCALE), int(480 * 2 * SCALE)), interpolation=cv2.INTER_LINEAR)
-                cv2.imshow("Stream", frame)
+                cv2.imshow("Jetson Camera Stream", frame)
                 cv2.waitKey(1)
             else:
                 text = "FIN :("

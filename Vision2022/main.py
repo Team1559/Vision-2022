@@ -16,8 +16,8 @@ CAMERA_PATH = "/dev/v4l/by-path/"
 # HOOP_CAMERA_ID = CAMERA_PATH + "platform-3530000.xhci-usb-0:2.3:1.0-video-index0"
 
 # Without hub
-BALL_CAMERA_ID = CAMERA_PATH + "platform-3530000.xhci-usb-0:2.4:1.0-video-index0"
-HOOP_CAMERA_ID = CAMERA_PATH + "platform-3530000.xhci-usb-0:2.3:1.0-video-index0"
+BALL_CAMERA_ID = CAMERA_PATH + "platform-3530000.xhci-usb-0:2:1.0-video-index0"
+HOOP_CAMERA_ID = CAMERA_PATH + "platform-3530000.xhci-usb-0:3:1.0-video-index0"
 
 s = socket(AF_INET, SOCK_DGRAM)
 
