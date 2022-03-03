@@ -186,7 +186,7 @@ def send_data(hoop_x, hoop_y, hoop_angle, ball_found, ball_x, ball_y, ball_angle
 def receive():
     global color
     global sock
-    data, addr = sock.recvfrom(1024)  # buffer size is 1024 bytes
+    data, sender = sock.recvfrom(1024)  # buffer size is 1024 bytes
     if data is not None:
         color = data.decode('utf-8')
 
