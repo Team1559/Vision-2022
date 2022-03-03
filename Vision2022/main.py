@@ -187,7 +187,8 @@ def receive():
     global color
     global sock
     data, addr = sock.recvfrom(1024)  # buffer size is 1024 bytes
-    color = data
+    if data is not None:
+        color = data.decode('utf-8')
 
 
 if __name__ == "__main__":
