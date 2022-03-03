@@ -67,7 +67,7 @@ class ball_finder(object):
         self.height = 0
 
         self.found = False
-        self.out = np.zeros(shape=(480, 640, 3))
+        self.out = None
         self.min_area = 10  # 100
         self.color = (0, 165, 255)
         self.highlightColor = (0, 0)
@@ -110,15 +110,9 @@ class ball_finder(object):
         if self.team == "red":
             hsv[:, :, 0] += 90
             hsv[:, :, 0] %= 180
-        # blur me
-        # hsv = cv2.medianBlur(hsv, 5)
-        # hsv =  cv2.blur(hsv, (5,5))
 
         thresh = cv2.inRange(hsv, self.hsv_l, self.hsv_h)
         thresh = cv2.medianBlur(thresh, 9)
-        # erode and dilate
-        # thresh = cv2.erode(thresh, (14, 14))
-        # thresh = cv2.dilate(thresh, (14, 14))  # 14
 
         return thresh
 

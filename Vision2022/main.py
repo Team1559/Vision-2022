@@ -34,7 +34,7 @@ if cpuArch != "x86_64" and cpuArch != "AMD64":
     is_jetson = True
 
 if is_jetson:
-    # brightness not set for ball camera?
+    # Brightness not set for ball camera?
     # CAP_PROP_SATURATION not set for either camera?
     ball_camera = None
     try:
@@ -171,16 +171,12 @@ def main():
 
 
 # Data sending stuff
-def send(data):
-    s.sendto(data.encode('utf-8'), address)
-
-
 def send_data(hoop_x, hoop_y, hoop_angle, ball_found, ball_x, ball_y, ball_angle, wait_for_other_robot):
 
     data = '%3.1f %3.1f %3.1f %3.1f %3.1f %3.1f %d %d %d \n' % (
-        hoop_x, hoop_y, hoop_angle, ball_x, ball_y, ball_angle, int(ball_found), int(ball_found),
-        wait_for_other_robot)
-    send(data)
+        hoop_x, hoop_y, hoop_angle, ball_x, ball_y, ball_angle, int(ball_found), int(ball_found), wait_for_other_robot)
+
+    s.sendto(data.encode('utf-8'), address)
 
 
 def receive():
