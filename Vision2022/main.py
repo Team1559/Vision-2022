@@ -102,6 +102,7 @@ def main():
     ball_frame = np.zeros(shape=(480, 640, 3))
 
     while True:
+        receive()
         try:
             hoop_result = None
             ball_result = None
@@ -133,7 +134,7 @@ def main():
 
             # Print and send depending on which results we got, probably should change
             if hoop_result is not None and ball_result is not None:
-                print(str(hoop_result) + elapsedHoop + " <-- Hoop, Ball--> " + str(ball_result) + elapsedBall)
+                # print(str(hoop_result) + elapsedHoop + " <-- Hoop, Ball--> " + str(ball_result) + elapsedBall)
                 send_data(hoop_result[0], hoop_result[1], hoop_result[2], 0, ball_result[0], ball_result[1],
                           ball_result[2], ball_result[3], 0)
                 # Python 3:send_data(*hoop_result[:3], 0, *ball_result[:4], 0)
@@ -142,7 +143,7 @@ def main():
                     print("Ball--> " + str(ball_result) + elapsedBall)
                 send_data(False, 0, 0, 0, ball_result[0], ball_result[1], ball_result[2], ball_result[3], 0)
             elif hoop_result is not None:
-                print(str(hoop_result) + elapsedHoop + " <-- Hoop")
+                # print(str(hoop_result) + elapsedHoop + " <-- Hoop")
                 send_data(hoop_result[0], hoop_result[1], hoop_result[2], 0, False, 0, 0, 0, 0)
 
             # stream images depending on result, also should change
@@ -189,9 +190,13 @@ def send_data(hoop_found, hoop_x, hoop_y, hoop_angle, ball_found, ball_x, ball_y
 def receive():
     global color
     global sock
-    data, sender = sock.recvfrom(1024)  # buffer size is 1024 bytes
-    if data is not None:
-        color = data.decode('utf-8')
+    try:
+        data, sender = sock.recvfrom(1024)  # buffer size is 1024 bytes
+        if data is not None:
+            print(color)
+            color = data.decode('utf-8')
+    except error:
+        pass
 
 
 if __name__ == "__main__":

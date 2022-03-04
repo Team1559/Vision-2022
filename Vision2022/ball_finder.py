@@ -91,7 +91,7 @@ class ball_finder(object):
             self.hsv_l = self.red_low
             self.color = color_RED
             self.highlightColor = color_BLUE
-            self.text = "red"
+            self.text = "Red"
         else:
             self.hsv_h = self.invalid
             self.hsv_l = self.invalid
@@ -107,7 +107,7 @@ class ball_finder(object):
     def preImageProcessing(self, frame):
         # convert to hsv
         hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-        if self.color == "red":
+        if self.text == "Red":
             hsv[:, :, 0] += 90
             hsv[:, :, 0] %= 180
 
