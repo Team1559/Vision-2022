@@ -76,7 +76,7 @@ class ball_finder(object):
 
     def set_color(self, color):
         color_RED = (0, 0, 255)
-        color_ORANGE = (0, 165, 255)
+        color_BLACK = (0, 0, 0)
         color_BLUE = (255, 0, 0)
 
         if color == "blue":
@@ -95,7 +95,7 @@ class ball_finder(object):
         else:
             self.hsv_h = self.invalid
             self.hsv_l = self.invalid
-            self.color = color_ORANGE
+            self.color = color_BLACK
             self.text = "Invalid"
 
     def acquireImage(self, data):
@@ -144,20 +144,25 @@ class ball_finder(object):
         thresh = self.preImageProcessing(frame)
 
         self.out = self.findTargets(frame, thresh)
-        cv2.putText(self.out, self.text, self.position, cv2.FONT_HERSHEY_SIMPLEX, 1, self.color, 2, 2)
-        if not self.ball or self.ball is None:
-            return (False, 0, 0, 0), self.out
-        distance = calculateDistance(self.ball[1])
 
-        if distance < 0.3 or distance > 20:
+        valid_result = self.ball and self.ball is not None
+
+        distance = calculateDistance(self.ball[1]) if valid_result else 0
+        distance_valid = distance > 0.3 and distance <= 20
+        distance_display = distance if distance_valid else 0
+        
+        TEXT_PADDING = 5
+        (text_w, text_h), _ = cv2.getTextSize("{:.1f}ft".format(distance_display), FONT, 1, 4)
+
+        cv2.rectangle(self.out, (0, 0), (TEXT_PADDING * 2 + text_w, TEXT_PADDING * 2 + text_h), self.color, -1)
+        cv2.putText(self.out, "{:.1f}ft".format(distance_display), (TEXT_PADDING, TEXT_PADDING + text_h), FONT, 1,
+                    (255, 255, 255), 4, cv2.LINE_AA)
+
+        if not valid_result or not distance_valid:
             return (False, 0, 0, 0), self.out
 
         cv2.circle(self.out, (self.ball[0], self.ball[1]), self.ball[2], self.highlightColor, 4)
-        (text_w, text_h), _ = cv2.getTextSize("{:.1f}ft".format(distance), FONT, 1, 4)
-        TEXT_PADDING = 5
-        cv2.rectangle(self.out, (0, 0), (TEXT_PADDING * 2 + text_w, TEXT_PADDING * 2 + text_h), (0, 0, 0), -1)
-        cv2.putText(self.out, "{:.1f}ft".format(distance), (TEXT_PADDING, TEXT_PADDING + text_h), FONT, 1,
-                    (255, 255, 255), 4, cv2.LINE_AA)
+        
         # Text for the current color being targeted
 
         return (True, calculateAngle(self.ball[0]), calculateDistance(self.ball[1]),
