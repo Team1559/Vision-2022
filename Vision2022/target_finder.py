@@ -4,6 +4,7 @@ import sys
 
 FONT = cv2.FONT_HERSHEY_SIMPLEX
 
+
 def calculateDistance(centroid_y):
     # import pdb
     # pdb.set_trace()
@@ -13,7 +14,7 @@ def calculateDistance(centroid_y):
     v_fov = 45.0  # degrees
     imageHeight = 480.0  # pixels
     targetPixelY = imageHeight - centroid_y  # pixels
-    cameraHeight = 33 / 12  # feet
+    cameraHeight = 30 / 12.0  # feet
     targetHeight = 8.67  # feet
     angularOffset = 2.5  # degrees
     heightDifference = targetHeight - cameraHeight  # feet
@@ -155,7 +156,7 @@ class target_finder(object):
             self.err = cx - (self.width / 2)
             cv2.circle(frame, (cx, cy), 10, (0, 255, 255), 5)
             distance = calculateDistance(cy)
-            cv2.putText(frame, "{:.1f}ft".format(distance), (0,30), FONT,1, (255,255,255), 4, cv2.LINE_AA)
+            cv2.putText(frame, "{:.1f}ft".format(distance), (0, 30), FONT, 1, (255, 255, 255), 4, cv2.LINE_AA)
             heading = calculateAngle(cx)
             # print("distance :", distance)
             # print("heading :", heading)

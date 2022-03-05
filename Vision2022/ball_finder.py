@@ -20,7 +20,7 @@ def calculateDistance(targetPixelY):
     v_fov = 45.0  # degrees
     imageHeight = 480.0  # pixels
     targetPixelY = imageHeight - targetPixelY  # pixels
-    cameraHeight = 2.5416  # feet FIXME: Will need to be adjusted
+    cameraHeight = 28 / 12.0  # feet FIXME: Will need to be adjusted
     targetHeight = 4.75 / 12  # feet
     angularOffset = -39.5  # degrees
     heightDifference = targetHeight - cameraHeight  # feet
@@ -150,7 +150,7 @@ class ball_finder(object):
         distance = calculateDistance(self.ball[1]) if valid_result else 0
         distance_valid = distance > 0.3 and distance <= 20
         distance_display = distance if distance_valid else 0
-        
+
         TEXT_PADDING = 5
         (text_w, text_h), _ = cv2.getTextSize("{:.1f}ft".format(distance_display), FONT, 1, 4)
 
@@ -162,7 +162,6 @@ class ball_finder(object):
             return (False, 0, 0, 0), self.out
 
         cv2.circle(self.out, (self.ball[0], self.ball[1]), self.ball[2], self.highlightColor, 4)
-        
         # Text for the current color being targeted
 
         return (True, calculateAngle(self.ball[0]), calculateDistance(self.ball[1]),
