@@ -16,13 +16,13 @@ def calculateDistance(centroid_y):
     targetPixelY = imageHeight - centroid_y  # pixels
     cameraHeight = 30 / 12.0  # feet
     targetHeight = 8.67  # feet
-    angularOffset = 2.5  # degrees
+    angularOffset = 36 - v_fov/2  # degrees
     heightDifference = targetHeight - cameraHeight  # feet
 
     theta = v_fov / imageHeight * targetPixelY + angularOffset
     d = heightDifference / np.tan(theta * 3.14159265 / 180)
 
-    return d
+    return d * 1.01 - 0.275
 
 
 def calculateAngle(centroid_x):
@@ -156,7 +156,7 @@ class target_finder(object):
             self.err = cx - (self.width / 2)
             cv2.circle(frame, (cx, cy), 10, (0, 255, 255), 5)
             distance = calculateDistance(cy)
-            cv2.putText(frame, "{:.1f}ft".format(distance), (0, 30), FONT, 1, (255, 255, 255), 4, cv2.LINE_AA)
+            cv2.putText(frame, "{:.2f}ft".format(distance), (0, 30), FONT, 1, (255, 255, 255), 4, cv2.LINE_AA)
             heading = calculateAngle(cx)
             # print("distance :", distance)
             # print("heading :", heading)
