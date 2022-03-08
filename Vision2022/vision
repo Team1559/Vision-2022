@@ -1,13 +1,7 @@
 #!/bin/bash
-sleep 5
-
-# workaround for camera parameters not being set correctly - run the script twice
-python /home/frc1559/Desktop/Vision-2022/Vision2022/main.py &
-sleep 3
-kill %%
-
+sudo -s
 while true; do
 	sleep 1
-	python /home/frc1559/Desktop/Vision-2022/Vision2022/main.py
+	sudo python /home/frc1559/Desktop/Vision-2022/Vision2022/main.py
 done
 

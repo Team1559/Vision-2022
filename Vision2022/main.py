@@ -55,13 +55,12 @@ if is_jetson:
     ball_camera_props = {
         cv2.CAP_PROP_TEMPERATURE: 4659,
         cv2.CAP_PROP_AUTO_EXPOSURE: 0,
-        cv2.CAP_PROP_BRIGHTNESS: 96
+        cv2.CAP_PROP_BRIGHTNESS: 96,
     }
 
     both = {
         cv2.CAP_PROP_CONTRAST: 128,
-        44: 0
-        # cv2.CAP_PROP_AUTO_WB: 0
+        cv2.CAP_PROP_AUTO_WB: 0
     }
 
     hoop_camera_props = {
