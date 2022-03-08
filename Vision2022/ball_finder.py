@@ -22,7 +22,7 @@ def calculateDistance(targetPixelY):
     targetPixelY = imageHeight - targetPixelY  # pixels
     cameraHeight = 28.0 / 12.0  # feet FIXME: Will need to be adjusted
     targetHeight = 4.75 / 12.0  # feet
-    angularOffset = -17 - v_fov/2  # degrees
+    angularOffset = -17 - v_fov / 2  # degrees
     heightDifference = targetHeight - cameraHeight  # feet
 
     theta = v_fov / imageHeight * targetPixelY + angularOffset
@@ -54,7 +54,7 @@ class ball_finder(object):
         self.cy = -1
         self.err = -1000
         self.ball = None
-        # NOOOOOOOO BGR, BGR bad
+        # NO BGR, BGR bad
         self.invalid = np.array((0, 0, 0))
         # self.red_low = np.array((80, 130, 45))
         # self.red_high = np.array((110, 255, 255))
@@ -63,8 +63,8 @@ class ball_finder(object):
         # self.blue_low = np.array((105, 100, 20))
         # self.blue_high = np.array((121, 255, 255))
         tighten = 3
-        self.blue_low = np.array((105+tighten, 120, 20))
-        self.blue_high = np.array((121+tighten,255, 255))
+        self.blue_low = np.array((105 + tighten, 120, 20))
+        self.blue_high = np.array((121 + tighten, 255, 255))
         self.hsv_l = self.invalid
         self.hsv_h = self.invalid
         self.show = "show" in sys.argv
@@ -113,9 +113,9 @@ class ball_finder(object):
         # convert to hsv
         hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
         if self.text == "Red":
-        # if True:
-            hsv[:,:,0] += 90
-            hsv[:,:,0] %= 180
+            # if True:
+            hsv[:, :, 0] += 90
+            hsv[:, :, 0] %= 180
 
         thresh = cv2.inRange(hsv, self.hsv_l, self.hsv_h)
         thresh = cv2.medianBlur(thresh, 9)
@@ -145,17 +145,17 @@ class ball_finder(object):
         return output
 
     def find(self, data):
-        #print(self.hsv_l, self.hsv_h)
+        # print(self.hsv_l, self.hsv_h)
         frame = self.acquireImage(data)
         thresh = self.preImageProcessing(frame)
 
         # self.out = self.findTargets(frame, thresh)
-        output = self.out if False else cv2.cvtColor(thresh, cv2.COLOR_GRAY2BGR)
+        output = self.out if True else cv2.cvtColor(thresh, cv2.COLOR_GRAY2BGR)
 
         valid_result = self.ball and self.ball is not None
 
         distance = calculateDistance(self.ball[1]) if valid_result else 0
-        distance_valid = distance > 0.3 and distance <= 20
+        distance_valid = 0.3 < distance <= 20
         # distance_valid = True
         distance_display = distance if distance_valid else 0
 
@@ -165,8 +165,6 @@ class ball_finder(object):
         cv2.rectangle(self.out, (0, 0), (TEXT_PADDING * 2 + text_w, TEXT_PADDING * 2 + text_h), self.color, -1)
         cv2.putText(self.out, "{:.1f}ft".format(distance_display), (TEXT_PADDING, TEXT_PADDING + text_h), FONT, 1,
                     (255, 255, 255), 4, cv2.LINE_AA)
-
-        # cv2.imshow("Output", output)
 
         if not valid_result or not distance_valid:
             return (False, 0, 0, 0), output
