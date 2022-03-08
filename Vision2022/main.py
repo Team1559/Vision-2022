@@ -133,18 +133,18 @@ def main():
                 hoop_result, hoop_frame = hoop_data
 
             # Print and send depending on which results we got, probably should change
-            # if hoop_result is not None and ball_result is not None:
-            #     # print(str(hoop_result) + elapsedHoop + " <-- Hoop, Ball--> " + str(ball_result) + elapsedBall)
-            #     send_data(hoop_result[0], hoop_result[1], hoop_result[2], 0, ball_result[0], ball_result[1],
-            #               ball_result[2], ball_result[3], 0)
-            #     # Python 3:send_data(*hoop_result[:3], 0, *ball_result[:4], 0)
-            # elif ball_result is not None:
-            #     if ball_result[0]:
-            #         print("Ball--> " + str(ball_result) + elapsedBall)
-            #     send_data(False, 0, 0, 0, ball_result[0], ball_result[1], ball_result[2], ball_result[3], 0)
-            # elif hoop_result is not None:
-            #     # print(str(hoop_result) + elapsedHoop + " <-- Hoop")
-            #     send_data(hoop_result[0], hoop_result[1], hoop_result[2], 0, False, 0, 0, 0, 0)
+            if hoop_result is not None and ball_result is not None:
+                # print(str(hoop_result) + elapsedHoop + " <-- Hoop, Ball--> " + str(ball_result) + elapsedBall)
+                send_data(hoop_result[0], hoop_result[1], hoop_result[2], 0, ball_result[0], ball_result[1],
+                          ball_result[2], ball_result[3], 0)
+                # Python 3:send_data(*hoop_result[:3], 0, *ball_result[:4], 0)
+            elif ball_result is not None:
+                if ball_result[0]:
+                    #  print("Ball--> " + str(ball_result) + elapsedBall)
+                    send_data(False, 0, 0, 0, ball_result[0], ball_result[1], ball_result[2], ball_result[3], 0)
+            elif hoop_result is not None:
+                # print(str(hoop_result) + elapsedHoop + " <-- Hoop")
+                send_data(hoop_result[0], hoop_result[1], hoop_result[2], 0, False, 0, 0, 0, 0)
 
             # stream images depending on result, also should change
             imageHeight = 480

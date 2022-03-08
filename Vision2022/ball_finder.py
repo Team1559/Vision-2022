@@ -22,7 +22,7 @@ def calculateDistance(targetPixelY):
     targetPixelY = imageHeight - targetPixelY  # pixels
     cameraHeight = 28 / 12.0  # feet FIXME: Will need to be adjusted
     targetHeight = 4.75 / 12  # feet
-    angularOffset = -17 - v_fov/2  # degrees
+    angularOffset = -24 - v_fov/2  # degrees
     heightDifference = targetHeight - cameraHeight  # feet
 
     theta = v_fov / imageHeight * targetPixelY + angularOffset
@@ -58,8 +58,8 @@ class ball_finder(object):
         self.invalid = np.array((0, 0, 0))
         # self.red_low = np.array((80, 130, 45))
         # self.red_high = np.array((110, 255, 255))
-        self.red_low = np.array((0, 0, 0))
-        self.red_high = np.array((10, 255, 255))
+        self.red_low = np.array((80, 30, 20))
+        self.red_high = np.array((95, 255, 255))
         self.blue_low = np.array((105, 100, 0))
         self.blue_high = np.array((121, 255, 255))
         self.hsv_l = self.invalid
@@ -115,7 +115,6 @@ class ball_finder(object):
 
         thresh = cv2.inRange(hsv, self.hsv_l, self.hsv_h)
         thresh = cv2.medianBlur(thresh, 9)
-        cv2.imshow("thresh", thresh)
         return thresh
 
     def findTargets(self, frame, thresh):
@@ -142,7 +141,7 @@ class ball_finder(object):
         return output
 
     def find(self, data):
-        print(self.hsv_l, self.hsv_h)
+        #print(self.hsv_l, self.hsv_h)
         frame = self.acquireImage(data)
         thresh = self.preImageProcessing(frame)
 
