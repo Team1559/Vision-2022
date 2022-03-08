@@ -20,9 +20,9 @@ def calculateDistance(targetPixelY):
     v_fov = 45.0  # degrees
     imageHeight = 480.0  # pixels
     targetPixelY = imageHeight - targetPixelY  # pixels
-    cameraHeight = 28 / 12.0  # feet FIXME: Will need to be adjusted
-    targetHeight = 4.75 / 12  # feet
-    angularOffset = -24 - v_fov/2  # degrees
+    cameraHeight = 28.0 / 12.0  # feet FIXME: Will need to be adjusted
+    targetHeight = 4.75 / 12.0  # feet
+    angularOffset = -17 - v_fov/2  # degrees
     heightDifference = targetHeight - cameraHeight  # feet
 
     theta = v_fov / imageHeight * targetPixelY + angularOffset
@@ -58,10 +58,13 @@ class ball_finder(object):
         self.invalid = np.array((0, 0, 0))
         # self.red_low = np.array((80, 130, 45))
         # self.red_high = np.array((110, 255, 255))
-        self.red_low = np.array((80, 30, 20))
-        self.red_high = np.array((95, 255, 255))
-        self.blue_low = np.array((105, 100, 0))
-        self.blue_high = np.array((121, 255, 255))
+        self.red_low = np.array((0, 30, 20))
+        self.red_high = np.array((10, 255, 255))
+        # self.blue_low = np.array((105, 100, 20))
+        # self.blue_high = np.array((121, 255, 255))
+        tighten = 3
+        self.blue_low = np.array((105+tighten, 120, 20))
+        self.blue_high = np.array((121+tighten,255, 255))
         self.hsv_l = self.invalid
         self.hsv_h = self.invalid
         self.show = "show" in sys.argv
@@ -110,6 +113,7 @@ class ball_finder(object):
         # convert to hsv
         hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
         if self.text == "Red":
+        # if True:
             hsv[:,:,0] += 90
             hsv[:,:,0] %= 180
 
@@ -145,8 +149,8 @@ class ball_finder(object):
         frame = self.acquireImage(data)
         thresh = self.preImageProcessing(frame)
 
-        self.out = self.findTargets(frame, thresh)
-        output = self.out if True else cv2.cvtColor(thresh, cv2.COLOR_GRAY2BGR)
+        # self.out = self.findTargets(frame, thresh)
+        output = self.out if False else cv2.cvtColor(thresh, cv2.COLOR_GRAY2BGR)
 
         valid_result = self.ball and self.ball is not None
 

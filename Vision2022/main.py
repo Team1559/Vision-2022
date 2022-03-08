@@ -169,6 +169,7 @@ def main():
                 cv2.imshow("DriverStation", np.vstack((hoop_frame, ball_frame)))
             encoded, buffer = cv2.imencode('.jpg', vis, [cv2.IMWRITE_JPEG_QUALITY, 22])
             s.sendto(buffer, ("10.15.59.46", 1180))
+            s.sendto(buffer, ("10.15.59.167", 1180))
 
             cv2.waitKey(1)
         except KeyboardInterrupt:
