@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 from socket import *
 
-SCALE = 0.8
+SCALE = 2
 
 
 def main():
@@ -22,13 +22,13 @@ def main():
             if data is not None:
                 np_img = np.frombuffer(data, dtype=np.uint8)
                 frame = cv2.imdecode(np_img, 1)
-                frame = cv2.resize(frame, (int(640 * SCALE), int(480 * 2 * SCALE)), interpolation=cv2.INTER_LINEAR)
+                frame = cv2.resize(frame, (int(640 * 2 * SCALE), int(480 * SCALE)), interpolation=cv2.INTER_LINEAR)
                 cv2.imshow("Jetson Camera Stream", frame)
                 cv2.waitKey(1)
             else:
                 text = "FIN :("
                 no_data_frames += 1
-                frame = np.zeros(shape=(int(640 * SCALE), int(480 * 2 * SCALE), 3))
+                frame = np.zeros(shape=(int(640 * 2 * SCALE), int(480 * SCALE), 3))
                 cv2.putText(frame, text, (int(420 * SCALE), int(320 * SCALE)), cv2.FONT_HERSHEY_SIMPLEX, 1,
                             (255, 255, 255), 2, 2)
                 cv2.imshow("Jetson Camera Stream", frame)

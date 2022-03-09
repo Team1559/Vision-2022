@@ -163,10 +163,10 @@ def main():
             cv2.line(ball_frame, ((imageWidth / 2), imageHeight * 4 / 5 - 20),
                      (imageWidth / 2, imageHeight * 4 / 5 + 20),
                      BALL_COLOR, THICKNESS)
-            vis = np.vstack(
+            vis = np.hstack(
                 (cv2.resize(hoop_frame, None, fx=0.5, fy=0.5), cv2.resize(ball_frame, None, fx=0.5, fy=0.5)))
             if "show" in sys.argv:
-                cv2.imshow("DriverStation", np.vstack((hoop_frame, ball_frame)))
+                cv2.imshow("DriverStation", np.hstack((hoop_frame, ball_frame)))
             encoded, buffer = cv2.imencode('.jpg', vis, [cv2.IMWRITE_JPEG_QUALITY, 22])
             s.sendto(buffer, ("10.15.59.46", 1180))
 
@@ -184,6 +184,11 @@ def send_data(hoop_found, hoop_x, hoop_y, hoop_angle, ball_found, ball_x, ball_y
         hoop_x, hoop_y, hoop_angle, ball_x, ball_y, ball_angle, int(hoop_found), int(ball_found), wait_for_other_robot)
 
     s.sendto(data.encode('utf-8'), address)
+# def send_data(one, two, three, four, five, six, seven, eight, nine):
+#     data = '%3.1f %3.1f %3.1f %3.1f %3.1f %3.1f %d %d %d \n' % (
+#         two, three, four, six, seven, eight, int(one), int(five), nine)
+
+#     s.sendto(data.encode('utf-8'), address)
 
 
 def receive():

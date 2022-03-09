@@ -20,9 +20,9 @@ def calculateDistance(targetPixelY):
     v_fov = 45.0  # degrees
     imageHeight = 480.0  # pixels
     targetPixelY = imageHeight - targetPixelY  # pixels
-    cameraHeight = 28 / 12.0  # feet FIXME: Will need to be adjusted
-    targetHeight = 4.75 / 12  # feet
-    angularOffset = -24 - v_fov/2  # degrees
+    cameraHeight = 28.0 / 12.0  # feet FIXME: Will need to be adjusted
+    targetHeight = 4.75 / 12.0  # feet
+    angularOffset = -17 - v_fov/2  # degrees
     heightDifference = targetHeight - cameraHeight  # feet
 
     theta = v_fov / imageHeight * targetPixelY + angularOffset
@@ -58,10 +58,10 @@ class ball_finder(object):
         self.invalid = np.array((0, 0, 0))
         # self.red_low = np.array((80, 130, 45))
         # self.red_high = np.array((110, 255, 255))
-        self.red_low = np.array((80, 30, 20))
-        self.red_high = np.array((95, 255, 255))
-        self.blue_low = np.array((105, 100, 0))
-        self.blue_high = np.array((121, 255, 255))
+        self.red_low = np.array((90, 163, 128))
+        self.red_high = np.array((103, 255, 255))
+        self.blue_low = np.array((105, 13, 0))
+        self.blue_high = np.array((115, 255, 255))
         self.hsv_l = self.invalid
         self.hsv_h = self.invalid
         self.show = "show" in sys.argv
@@ -123,7 +123,7 @@ class ball_finder(object):
 
         circles = cv2.HoughCircles(thresh, cv2.HOUGH_GRADIENT, 1, 75, param1=255, param2=14, minRadius=10,
                                    maxRadius=200)  # bye Ry ry
-        output = frame.copy()
+        output = frame.copy() # FIXME: <--- this function should probably return ball, not a copy of the frame
         # ensure at least some circles were found
         if circles is not None:
             circles = np.round(circles[0, :]).astype("int")
@@ -138,11 +138,27 @@ class ball_finder(object):
                             maxRadius = r
                 except IndexError:
                     pass
+        else:
+            self.ball = None
         return output
 
     def find(self, data):
-        #print(self.hsv_l, self.hsv_h)
+        print(self.hsv_l, self.hsv_h)
         frame = self.acquireImage(data)
+
+        hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+        # print("START")
+        # print(np.median(hsv[:,:,0]))
+        # print(np.median(hsv[:,:,1]))
+        # print(np.median(hsv[:,:,2]))
+        # print("MIN 0:", np.min(hsv[:,:,0]))
+        # print("1: ", np.min(hsv[:,:,1]))
+        # print("2: ", np.min(hsv[:,:,2]))
+        # print("3: ", np.max(hsv[:,:,0]))
+        # print("4: ", np.max(hsv[:,:,1]))
+        # print("5: ", np.max(hsv[:,:,2]))
+        # print("--------")
+
         thresh = self.preImageProcessing(frame)
 
         self.out = self.findTargets(frame, thresh)
@@ -166,7 +182,9 @@ class ball_finder(object):
 
         if not valid_result or not distance_valid:
             return (False, 0, 0, 0), output
-
+#  109.0
+# Feb 19 13:29:05 tx2-120 vision.sh[12588]: 67.0
+# Feb 19 13:29:05 tx2-120 vision.sh[12588]: 132.0
         cv2.circle(self.out, (self.ball[0], self.ball[1]), self.ball[2], self.highlightColor, 4)
         # Text for the current color being targeted
 

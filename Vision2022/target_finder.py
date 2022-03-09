@@ -147,7 +147,7 @@ class target_finder(object):
 
         # print("rectangles" , rectangles)
 
-        # found, heading(ft), range(deg)
+        # found, distance(ft), heading(deg)
         result = (False, 0, 0)
 
         if len(rectangles) > 0:
