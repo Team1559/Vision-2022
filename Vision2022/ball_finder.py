@@ -4,6 +4,7 @@ import sys
 
 FONT = cv2.FONT_HERSHEY_SIMPLEX
 
+frameCount = 0
 
 def findCentroid(rectangles):
     centers = np.array([r[0] for r in rectangles])
@@ -146,6 +147,10 @@ class ball_finder(object):
     def find(self, data):
         # print(self.hsv_l, self.hsv_h)
         frame = self.acquireImage(data)
+        global frameCount
+        frameCount += 1
+        if frameCount % 100 == 0:
+            cv2.imwrite("ball{}.jpg".format(frameCount), frame)
 
         hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
         # print("START")
