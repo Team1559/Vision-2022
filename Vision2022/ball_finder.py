@@ -59,8 +59,9 @@ class ball_finder(object):
         self.invalid = np.array((0, 0, 0))
         # self.red_low = np.array((80, 130, 45))
         # self.red_high = np.array((110, 255, 255))
-        self.red_low = np.array((90, 163, 128))
-        self.red_high = np.array((103, 255, 255))
+        # self.red_low = np.array((88, 163, 128))
+        self.red_low = np.array((0, 163, 128))
+        self.red_high = np.array((13, 255, 255))
         self.blue_low = np.array((105, 13, 0))
         self.blue_high = np.array((115, 255, 255))
         self.hsv_l = self.invalid
@@ -150,7 +151,7 @@ class ball_finder(object):
         global frameCount
         frameCount += 1
         if frameCount % 100 == 0:
-            cv2.imwrite("ball{}.jpg".format(frameCount), frame)
+            cv2.imwrite("/home/frc1559/frames/ball{}.jpg".format(frameCount), frame)
 
         hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
         # print("START")
@@ -168,7 +169,7 @@ class ball_finder(object):
         thresh = self.preImageProcessing(frame)
 
         # self.out = self.findTargets(frame, thresh)
-        output = self.out if True else cv2.cvtColor(thresh, cv2.COLOR_GRAY2BGR)
+        output = self.out if False else cv2.cvtColor(thresh, cv2.COLOR_GRAY2BGR)
 
         valid_result = self.ball and self.ball is not None
 

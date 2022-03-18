@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 from socket import *
 
-SCALE = 2
+SCALE = 0.8
 
 
 def main():
@@ -28,7 +28,7 @@ def main():
             else:
                 text = "FIN :("
                 no_data_frames += 1
-                frame = np.zeros(shape=(int(640 * 2 * SCALE), int(480 * SCALE), 3))
+                frame = np.zeros(shape=(int(480 * SCALE), int(640 * 2 * SCALE), 3))
                 cv2.putText(frame, text, (int(420 * SCALE), int(320 * SCALE)), cv2.FONT_HERSHEY_SIMPLEX, 1,
                             (255, 255, 255), 2, 2)
                 cv2.imshow("Jetson Camera Stream", frame)
