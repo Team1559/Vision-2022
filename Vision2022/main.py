@@ -168,7 +168,7 @@ def main():
             if "show" in sys.argv:
                 cv2.imshow("DriverStation", np.hstack((hoop_frame, ball_frame)))
             encoded, buffer = cv2.imencode('.jpg', vis, [cv2.IMWRITE_JPEG_QUALITY, 22])
-            s.sendto(buffer, ("10.15.59.46", 1180))
+            s.sendto(buffer, ("10.15.59.20", 1180))
             # s.sendto(buffer, ("10.15.59.167", 1180))
 
             cv2.waitKey(1)
@@ -183,7 +183,7 @@ def main():
 def send_data(hoop_found, hoop_x, hoop_y, hoop_angle, ball_found, ball_x, ball_y, ball_angle, wait_for_other_robot):
     data = '%3.1f %3.1f %3.1f %3.1f %3.1f %3.1f %d %d %d \n' % (
         hoop_x, hoop_y, hoop_angle, ball_x, ball_y, ball_angle, int(hoop_found), int(ball_found), wait_for_other_robot)
-
+    print("Sending " + data + " to " + str(address))
     s.sendto(data.encode('utf-8'), address)
 # def send_data(one, two, three, four, five, six, seven, eight, nine):
 #     data = '%3.1f %3.1f %3.1f %3.1f %3.1f %3.1f %d %d %d \n' % (

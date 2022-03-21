@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import sys
+from math import sin, pi
 
 FONT = cv2.FONT_HERSHEY_SIMPLEX
 
@@ -22,7 +23,8 @@ def calculateDistance(centroid_y):
     theta = v_fov / imageHeight * targetPixelY + angularOffset
     d = heightDifference / np.tan(theta * 3.14159265 / 180)
 
-    return d * 1.01 - 0.275
+    d = d * 1.01 - 0.275
+    return 1.05*d - 0.645
 
 
 def calculateAngle(centroid_x):
@@ -149,20 +151,28 @@ class target_finder(object):
 
         # found, distance(ft), heading(deg)
         result = (False, 0, 0)
-
+        
         if len(rectangles) > 0:
             cx, cy = findCentroid(rectangles).astype(np.int32)
-            # print("Centoid: ", cx, " ", cy)
-            self.err = cx - (self.width / 2)
-            cv2.circle(frame, (cx, cy), 10, (0, 255, 255), 5)
+            cv2.circle(frame, (cx, cy), 10, (255, 0, 255), 10)
+
             distance = calculateDistance(cy)
-            cv2.putText(frame, "{:.2f}ft".format(distance), (0, 30), FONT, 1, (255, 255, 255), 4, cv2.LINE_AA)
             heading = calculateAngle(cx)
-            # print("distance :", distance)
-            # print("heading :", heading)
+
+            h, w, _ = frame.shape
+            if 6 < distance < 7 or 14 < distance < 16:
+                cv2.rectangle(frame, (0,h*2/3), (w, h), (0, 255, 255), -1)
+            elif 8 <= distance <= 14 and abs(distance * sin(pi * heading / 180)) < 0.8:
+                cv2.rectangle(frame, (0,h*2/3), (w, h), (0, 255, 0), -1)
+
+            (text_w, text_h), _ = cv2.getTextSize("{:.1f}ft".format(distance), FONT, 1, 4)
+            TEXT_PADDING = 5
+
+            cv2.rectangle(frame, (0, 0), (TEXT_PADDING * 2 + text_w, TEXT_PADDING * 2 + text_h), (0,0,0), -1)
+            cv2.putText(frame, "{:.2f}ft".format(distance), (0, 30), FONT, 1, (255, 255, 255), 4, cv2.LINE_AA)
+
             result = (True, distance, heading)
-        else:
-            self.err = -1000
+
         # if self.show:
         # cv2.imshow("TargetCam", frame)
         # cv2.waitKey(1)
