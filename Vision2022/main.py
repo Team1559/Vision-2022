@@ -10,8 +10,6 @@ import sys
 
 TEAM = "red"
 
-SHOW_BALL = False
-
 CAMERA_PATH = "/dev/v4l/by-path/"
 # With hub
 # BALL_CAMERA_ID = CAMERA_PATH + "platform-3530000.xhci-usb-0:2.4:1.0-video-index0"
@@ -165,13 +163,11 @@ def main():
             cv2.line(ball_frame, ((imageWidth / 2), imageHeight * 4 / 5 - 20),
                      (imageWidth / 2, imageHeight * 4 / 5 + 20),
                      BALL_COLOR, THICKNESS)
-            if showBall:
-                vis = np.hstack((cv2.resize(hoop_frame, None, fx=0.5, fy=0.5), cv2.resize(ball_frame, None, fx=0.5, fy=0.5)))
-            else:
-                vis = hoop_frame
+            vis = np.hstack(
+                (cv2.resize(hoop_frame, None, fx=0.5, fy=0.5), cv2.resize(ball_frame, None, fx=0.5, fy=0.5)))
             if "show" in sys.argv:
                 cv2.imshow("DriverStation", np.hstack((hoop_frame, ball_frame)))
-            encoded, buffer = cv2.imencode('.jpg', vis, [cv2.IMWRITE_JPEG_QUALITY, 22 if showBall else 50])
+            encoded, buffer = cv2.imencode('.jpg', vis, [cv2.IMWRITE_JPEG_QUALITY, 22])
             s.sendto(buffer, ("10.15.59.20", 1180))
             # s.sendto(buffer, ("10.15.59.167", 1180))
 
