@@ -160,10 +160,11 @@ class target_finder(object):
             heading = calculateAngle(cx)
 
             h, w, _ = frame.shape
+            rect_coords = ((0,h*2,3),(w,h)) 
             if 6 < distance < 7 or 14 < distance < 16:
-                cv2.rectangle(frame, (0,h*2/3), (w, h), (0, 255, 255), -1)
+                cv2.rectangle(frame, rect_coords[0], rect_coords[1], (0, 255, 255), -1)
             elif 8 <= distance <= 14 and abs(distance * sin(pi * heading / 180)) < 0.8:
-                cv2.rectangle(frame, (0,h*2/3), (w, h), (0, 255, 0), -1)
+                cv2.rectangle(frame, rect_coords[0], rect_coords[1], (0, 255, 0), -1)
 
             (text_w, text_h), _ = cv2.getTextSize("{:.1f}ft".format(distance), FONT, 1, 4)
             TEXT_PADDING = 5
@@ -172,7 +173,8 @@ class target_finder(object):
             cv2.putText(frame, "{:.2f}ft".format(distance), (0, 30), FONT, 1, (255, 255, 255), 4, cv2.LINE_AA)
 
             result = (True, distance, heading)
-
+        else:
+            cv2.rectangle(frame, rect_coords[0], rect_coords[1], (0, 0, 255), -1)
         # if self.show:
         # cv2.imshow("TargetCam", frame)
         # cv2.waitKey(1)
