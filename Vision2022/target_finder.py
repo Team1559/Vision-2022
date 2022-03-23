@@ -152,6 +152,8 @@ class target_finder(object):
         # found, distance(ft), heading(deg)
         result = (False, 0, 0)
         
+        h, w, _ = frame.shape
+        rect_coords = ((0,h*2/3),(w,h)) 
         if len(rectangles) > 0:
             cx, cy = findCentroid(rectangles).astype(np.int32)
             cv2.circle(frame, (cx, cy), 10, (255, 0, 255), 10)
@@ -159,11 +161,9 @@ class target_finder(object):
             distance = calculateDistance(cy)
             heading = calculateAngle(cx)
 
-            h, w, _ = frame.shape
-            rect_coords = ((0,h*2,3),(w,h)) 
             if 6 < distance < 7 or 14 < distance < 16:
                 cv2.rectangle(frame, rect_coords[0], rect_coords[1], (0, 255, 255), -1)
-            elif 8 <= distance <= 14 and abs(distance * sin(pi * heading / 180)) < 0.8:
+            elif 7 <= distance <= 14 and abs(distance * sin(pi * heading / 180)) < 0.8:
                 cv2.rectangle(frame, rect_coords[0], rect_coords[1], (0, 255, 0), -1)
 
             (text_w, text_h), _ = cv2.getTextSize("{:.1f}ft".format(distance), FONT, 1, 4)
@@ -171,6 +171,10 @@ class target_finder(object):
 
             cv2.rectangle(frame, (0, 0), (TEXT_PADDING * 2 + text_w, TEXT_PADDING * 2 + text_h), (0,0,0), -1)
             cv2.putText(frame, "{:.2f}ft".format(distance), (0, 30), FONT, 1, (255, 255, 255), 4, cv2.LINE_AA)
+
+            (angle_w, angle_h), _ = cv2.getTextSize("{:.1f} deg".format(heading), FONT, 1, 4)
+            cv2.rectangle(frame, (w - angle_w - TEXT_PADDING, 0), (w - angle_w - TEXT_PADDING, TEXT_PADDING*2+angle_h), (0,0,0), -1)
+            cv2.putText(frame, "{:.1f} deg".format(heading), (w - angle_w, 30), FONT, 1, (255, 255, 255), 4, cv2.LINE_AA)
 
             result = (True, distance, heading)
         else:
