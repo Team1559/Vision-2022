@@ -88,8 +88,6 @@ class target_finder(object):
         self.hsv_l = green_low
         self.hsv_h = green_high
         self.show = "show" in sys.argv
-        # self.width = 800
-        # self.height = 488
         self.width = 0
         self.height = 0
         self.found = False
@@ -108,7 +106,7 @@ class target_finder(object):
         return frame
 
     def __preImageProcessing(self, frame):
-        # convert to hsv
+        # convert to HSV colorspace
         # hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
         hsv = frame
         # blur me
@@ -141,10 +139,10 @@ class target_finder(object):
                     rect = cv2.minAreaRect(cnt)
                     rectangles.append(rect)
 
-        def __xpos(r):
+        def __x_pos(r):
             return r[0][0]
 
-        return tuple(sorted(rectangles, key=__xpos))
+        return tuple(sorted(rectangles, key=__x_pos))
         # return rectangles.sort()
 
     def __find(self):
