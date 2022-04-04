@@ -1,10 +1,13 @@
+import sys
+
 import cv2
 import numpy as np
-import sys
+from threading import Thread
 
 FONT = cv2.FONT_HERSHEY_SIMPLEX
 
 frameCount = 0
+
 
 def findCentroid(rectangles):
     centers = np.array([r[0] for r in rectangles])
@@ -48,9 +51,14 @@ def calculateAngle(targetPixelX):
 
 class ball_finder(object):
 
-    def __init__(self):
+    def __init__(self, cam: cv2.VideoCapture):
         """Initialize camera"""
+        main_thread = Thread(target=self.__find)
+        self.camera = cam
         # BRIGHTNESS AT 30 for perfect, 85 for driver station
+        self.distance_valid = False
+        self.valid_result = False
+        self.output = np.zeros(shape=(480, 640, 3))
         self.cx = -1
         self.cy = -1
         self.err = -1000
@@ -77,6 +85,7 @@ class ball_finder(object):
         self.highlightColor = (0, 0)
         self.position = (10, 100)
         self.text = "Invalid"
+        main_thread.start()
 
     def set_color(self, color):
         color_RED = (0, 0, 255)
@@ -102,13 +111,17 @@ class ball_finder(object):
             self.color = color_BLACK
             self.text = "Invalid"
 
-    def acquireImage(self, data):
-        frame = data
+    def __acquireImage(self):
+        status, frame = self.camera.read()
+        if not status:
+            print("ball camera error")
+        if status is None:
+            frame = np.zeros(shape=(480, 640, 3))
         self.height, self.width = frame.shape[:2]
         self.out = frame
         return frame
 
-    def preImageProcessing(self, frame):
+    def __preImageProcessing(self, frame):
         # convert to hsv
         hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
         if self.text == "Red":
@@ -120,13 +133,13 @@ class ball_finder(object):
         thresh = cv2.medianBlur(thresh, 9)
         return thresh
 
-    def findTargets(self, frame, thresh):
+    def __findTargets(self, frame, thresh):
         if self.show:
             pass
 
         circles = cv2.HoughCircles(thresh, cv2.HOUGH_GRADIENT, 1, 75, param1=255, param2=14, minRadius=10,
                                    maxRadius=200)  # bye Ry ry
-        output = frame.copy() # FIXME: <--- this function should probably return ball, not a copy of the frame
+        output = frame.copy()  # FIXME: <--- this function should probably return ball, not a copy of the frame
         # ensure at least some circles were found
         if circles is not None:
             circles = np.round(circles[0, :]).astype("int")
@@ -145,56 +158,59 @@ class ball_finder(object):
             self.ball = None
         return output
 
-    def find(self, data):
-        # print(self.hsv_l, self.hsv_h)
-        frame = self.acquireImage(data)
-        global frameCount
-        frameCount += 1
-        if frameCount % 100 == 0:
-            cv2.imwrite("/home/frc1559/frames/ball{}.jpg".format(frameCount), frame)
+    def __find(self):
+        while True:
+            # print(self.hsv_l, self.hsv_h)
+            frame = self.__acquireImage()
+            global frameCount
+            frameCount += 1
+            if frameCount % 100 == 0:
+                cv2.imwrite("/home/frc1559/frames/ball{}.jpg".format(frameCount), frame)
 
-        hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-        # print("START")
-        # print(np.median(hsv[:,:,0]))
-        # print(np.median(hsv[:,:,1]))
-        # print(np.median(hsv[:,:,2]))
-        # print("MIN 0:", np.min(hsv[:,:,0]))
-        # print("1: ", np.min(hsv[:,:,1]))
-        # print("2: ", np.min(hsv[:,:,2]))
-        # print("3: ", np.max(hsv[:,:,0]))
-        # print("4: ", np.max(hsv[:,:,1]))
-        # print("5: ", np.max(hsv[:,:,2]))
-        # print("--------")
+            # hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+            # print("START")
+            # print(np.median(hsv[:,:,0]))
+            # print(np.median(hsv[:,:,1]))
+            # print(np.median(hsv[:,:,2]))
+            # print("MIN 0:", np.min(hsv[:,:,0]))
+            # print("1: ", np.min(hsv[:,:,1]))
+            # print("2: ", np.min(hsv[:,:,2]))
+            # print("3: ", np.max(hsv[:,:,0]))
+            # print("4: ", np.max(hsv[:,:,1]))
+            # print("5: ", np.max(hsv[:,:,2]))
+            # print("--------")
 
-        thresh = self.preImageProcessing(frame)
+            thresh = self.__preImageProcessing(frame)
 
-        # self.out = self.findTargets(frame, thresh)
-        output = self.out if False else cv2.cvtColor(thresh, cv2.COLOR_GRAY2BGR)
+            # self.out = self.findTargets(frame, thresh)
+            self.output = self.out if False else cv2.cvtColor(thresh, cv2.COLOR_GRAY2BGR)
 
-        valid_result = self.ball and self.ball is not None
+            self.valid_result = self.ball and self.ball is not None
 
-        distance = calculateDistance(self.ball[1]) if valid_result else 0
-        distance_valid = 0.3 < distance <= 20
-        # distance_valid = True
-        distance_display = distance if distance_valid else 0
+            distance = calculateDistance(self.ball[1]) if self.valid_result else 0
+            self.distance_valid = 0.3 < distance <= 20
+            # distance_valid = True
+            distance_display = distance if self.distance_valid else 0
 
-        TEXT_PADDING = 5
-        (text_w, text_h), _ = cv2.getTextSize("{:.1f}ft".format(distance_display), FONT, 1, 4)
+            TEXT_PADDING = 5
+            (text_w, text_h), _ = cv2.getTextSize("{:.1f}ft".format(distance_display), FONT, 1, 4)
 
-        cv2.rectangle(self.out, (0, 0), (TEXT_PADDING * 2 + text_w, TEXT_PADDING * 2 + text_h), self.color, -1)
-        cv2.putText(self.out, "{:.1f}ft".format(distance_display), (TEXT_PADDING, TEXT_PADDING + text_h), FONT, 1,
-                    (255, 255, 255), 4, cv2.LINE_AA)
+            cv2.rectangle(self.out, (0, 0), (TEXT_PADDING * 2 + text_w, TEXT_PADDING * 2 + text_h), self.color, -1)
+            cv2.putText(self.out, "{:.1f}ft".format(distance_display), (TEXT_PADDING, TEXT_PADDING + text_h), FONT, 1,
+                        (255, 255, 255), 4, cv2.LINE_AA)
 
-        if not valid_result or not distance_valid:
-            return (False, 0, 0, 0), output
-#  109.0
-# Feb 19 13:29:05 tx2-120 vision.sh[12588]: 67.0
-# Feb 19 13:29:05 tx2-120 vision.sh[12588]: 132.0
+    def get_data(self):
+
+        if not self.valid_result or not self.distance_valid:
+            return (False, 0, 0, 0), self.output
+        #  109.0
+        # Feb 19 13:29:05 tx2-120 vision.sh[12588]: 67.0
+        # Feb 19 13:29:05 tx2-120 vision.sh[12588]: 132.0
         cv2.circle(self.out, (self.ball[0], self.ball[1]), self.ball[2], self.highlightColor, 4)
         # Text for the current color being targeted
 
         return (True, calculateAngle(self.ball[0]), calculateDistance(self.ball[1]),
-                0), output
+                0), self.output
 
 
 if __name__ == "__main__":

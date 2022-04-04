@@ -1,15 +1,16 @@
 #!/usr/bin/python
-import cv2
 import platform
+import sys
+import time
 from socket import *
+
+import cv2
 import numpy as np
+
 import ball_finder
 import target_finder
-import time
-import sys
 
 TEAM = "red"
-
 CAMERA_PATH = "/dev/v4l/by-path/"
 # With hub
 # BALL_CAMERA_ID = CAMERA_PATH + "platform-3530000.xhci-usb-0:2.4:1.0-video-index0"
@@ -30,6 +31,8 @@ UDP_PORT = 5005
 sock = socket(AF_INET, SOCK_DGRAM)
 sock.bind(("", UDP_PORT))
 sock.setblocking(False)
+hoop_camera = None
+ball_camera = None
 
 color = "Invalid"
 
@@ -41,34 +44,33 @@ if cpuArch != "x86_64" and cpuArch != "AMD64":
 if is_jetson:
     # Brightness not set for ball camera?
     # CAP_PROP_SATURATION not set for either camera?
-    ball_camera = None
     try:
         ball_camera = cv2.VideoCapture(BALL_CAMERA_ID)
     except error:
         print("Ball camera not found")
-    hoop_camera = None
+
     try:
         hoop_camera = cv2.VideoCapture(HOOP_CAMERA_ID)
     except error:
         print("Hoop camera not found")
 
     ball_camera_props = {
-        cv2.CAP_PROP_TEMPERATURE: 4659,
-        cv2.CAP_PROP_AUTO_EXPOSURE: 0,
-        cv2.CAP_PROP_BRIGHTNESS: 96,
-    }
+            cv2.CAP_PROP_TEMPERATURE: 4659,
+            cv2.CAP_PROP_AUTO_EXPOSURE: 0,
+            cv2.CAP_PROP_BRIGHTNESS: 96,
+            }
 
     both = {
-        cv2.CAP_PROP_CONTRAST: 128,
-        cv2.CAP_PROP_AUTO_WB: 0
-    }
+            cv2.CAP_PROP_CONTRAST: 128,
+            cv2.CAP_PROP_AUTO_WB: 0
+            }
 
     hoop_camera_props = {
-        cv2.CAP_PROP_EXPOSURE: 5,
-        cv2.CAP_PROP_AUTO_EXPOSURE: 2,
-        cv2.CAP_PROP_TEMPERATURE: 6500,
-        cv2.CAP_PROP_BRIGHTNESS: 1
-    }
+            cv2.CAP_PROP_EXPOSURE: 5,
+            cv2.CAP_PROP_AUTO_EXPOSURE: 2,
+            cv2.CAP_PROP_TEMPERATURE: 6500,
+            cv2.CAP_PROP_BRIGHTNESS: 1
+            }
     for prop, value in both.items():
         ball_camera.set(prop, value)
         hoop_camera.set(prop, value)
@@ -77,20 +79,20 @@ if is_jetson:
     for prop, value in hoop_camera_props.items():
         hoop_camera.set(prop, value)
 
-hoop_locator = target_finder.target_finder()
+hoop_locator = target_finder.target_finder(hoop_camera)
 
 
-def get_hoop(hoop_frame):
-    hd, hf = hoop_locator.find(hoop_frame)
+def get_hoop():
+    hd, hf = hoop_locator.get_data()
     return hd, hf
 
 
-ball_locator = ball_finder.ball_finder()
+ball_locator = ball_finder.ball_finder(ball_camera)
 
 
-def get_ball(ball_frame):
+def get_ball():
     ball_locator.set_color(color)
-    bd, bf = ball_locator.find(ball_frame)
+    bd, bf = ball_locator.get_data()
     return bd, bf
 
 
@@ -112,7 +114,7 @@ def main():
                 if ball_cam_frame is None:
                     ball_cam_frame = np.zeros(shape=(480, 640, 3))
                 start_time = time.time()
-                ball_data = get_ball(ball_cam_frame.astype('uint8'))
+                ball_data = get_ball()
                 end_time = time.time()
                 elapsedBall = " " + str(round(1000 * (end_time - start_time), 1))
 
@@ -125,7 +127,7 @@ def main():
                 if hoop_cam_frame is None:
                     hoop_cam_frame = np.zeros(shape=(480, 640, 3))
                 start_time = time.time()
-                hoop_detector = get_hoop(hoop_cam_frame.astype('uint8'))
+                hoop_detector = get_hoop()
                 end_time = time.time()
                 elapsedHoop = " " + str(round(1000 * (end_time - start_time), 1))
                 hoop_data = hoop_detector
@@ -164,7 +166,7 @@ def main():
                      (imageWidth / 2, imageHeight * 4 / 5 + 20),
                      BALL_COLOR, THICKNESS)
             vis = np.hstack(
-                (cv2.resize(hoop_frame, None, fx=0.5, fy=0.5), cv2.resize(ball_frame, None, fx=0.5, fy=0.5)))
+                    (cv2.resize(hoop_frame, None, fx=0.5, fy=0.5), cv2.resize(ball_frame, None, fx=0.5, fy=0.5)))
             if "show" in sys.argv:
                 cv2.imshow("DriverStation", np.hstack((hoop_frame, ball_frame)))
             encoded, buffer = cv2.imencode('.jpg', vis, [cv2.IMWRITE_JPEG_QUALITY, 22])
@@ -182,9 +184,12 @@ def main():
 # Data sending stuff
 def send_data(hoop_found, hoop_x, hoop_y, hoop_angle, ball_found, ball_x, ball_y, ball_angle, wait_for_other_robot):
     data = '%3.1f %3.1f %3.1f %3.1f %3.1f %3.1f %d %d %d \n' % (
-        hoop_x, hoop_y, hoop_angle, ball_x, ball_y, ball_angle, int(hoop_found), int(ball_found), wait_for_other_robot)
+            hoop_x, hoop_y, hoop_angle, ball_x, ball_y, ball_angle, int(hoop_found), int(ball_found),
+            wait_for_other_robot)
     print("Sending " + data + " to " + str(address))
     s.sendto(data.encode('utf-8'), address)
+
+
 # def send_data(one, two, three, four, five, six, seven, eight, nine):
 #     data = '%3.1f %3.1f %3.1f %3.1f %3.1f %3.1f %d %d %d \n' % (
 #         two, three, four, six, seven, eight, int(one), int(five), nine)
